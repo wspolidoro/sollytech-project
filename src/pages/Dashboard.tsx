@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Search, Filter, Plus, LogOut } from "lucide-react";
+import { Search, Filter, Plus, LogOut, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DocumentCard, Document } from "@/components/DocumentCard";
@@ -78,11 +78,18 @@ const Dashboard = () => {
                   <p className="text-xs text-muted-foreground">Gerenciador de Certificados</p>
                 </div>
               </div>
-              <Link to="/">
-                <Button variant="ghost" size="icon">
-                  <LogOut className="w-5 h-5" />
-                </Button>
-              </Link>
+              <div className="flex items-center gap-2">
+                <Link to="/analytics">
+                  <Button variant="ghost" size="icon">
+                    <BarChart3 className="w-5 h-5" />
+                  </Button>
+                </Link>
+                <Link to="/">
+                  <Button variant="ghost" size="icon">
+                    <LogOut className="w-5 h-5" />
+                  </Button>
+                </Link>
+              </div>
             </div>
           </div>
         </header>
