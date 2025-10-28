@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Upload, Loader2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Upload, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -51,19 +51,13 @@ const AddDocument = () => {
 
       {/* Content */}
       <div className="relative z-10 min-h-screen pb-6">
-        {/* Header */}
-        <header className="glass border-b border-border/50 sticky top-0 z-20 mb-6">
-          <div className="container mx-auto px-4 py-4">
-            <Link to="/dashboard">
-              <Button variant="ghost" size="sm">
-                <ArrowLeft className="w-4 h-4" />
-                Voltar ao Painel
-              </Button>
-            </Link>
+        <main className="container mx-auto px-4 max-w-2xl pt-6">
+          {/* Page Header */}
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold text-foreground mb-1">Novo Documento</h1>
+            <p className="text-sm text-muted-foreground">Registrar e Certificar na Blockchain</p>
           </div>
-        </header>
 
-        <main className="container mx-auto px-4 max-w-2xl">
           <Card className="glass border-2 border-border/50 shadow-card">
             <CardHeader>
               <CardTitle className="text-xl">Certificar Novo Documento</CardTitle>

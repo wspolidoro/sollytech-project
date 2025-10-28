@@ -1,5 +1,5 @@
-import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Copy, Download, Share2, Calendar, MapPin, User, Package } from "lucide-react";
+import { useParams } from "react-router-dom";
+import { Copy, Download, Share2, Calendar, MapPin, User, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BlockchainBadge } from "@/components/BlockchainBadge";
@@ -55,19 +55,13 @@ const CertificateDetails = () => {
 
       {/* Content */}
       <div className="relative z-10 min-h-screen pb-6">
-        {/* Header */}
-        <header className="glass border-b border-border/50 sticky top-0 z-20 mb-6">
-          <div className="container mx-auto px-4 py-4">
-            <Link to="/dashboard">
-              <Button variant="ghost" size="sm">
-                <ArrowLeft className="w-4 h-4" />
-                Voltar aos Registros
-              </Button>
-            </Link>
+        <main className="container mx-auto px-4 space-y-6 max-w-2xl pt-6">
+          {/* Page Header */}
+          <div className="mb-2">
+            <h1 className="text-2xl font-bold text-foreground mb-1">Detalhes do Certificado</h1>
+            <p className="text-sm text-muted-foreground">Verificação Blockchain</p>
           </div>
-        </header>
 
-        <main className="container mx-auto px-4 space-y-6 max-w-2xl">
           {/* Certificate Header */}
           <Card className="glass border-2 border-border/50 shadow-card">
             <CardHeader>

@@ -1,14 +1,12 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { ArrowLeft, Download, TrendingUp, TrendingDown, FileCheck, Clock, Shield, Leaf } from "lucide-react";
+import { Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { LineChart, Line, PieChart, Pie, BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import soilTexture from "@/assets/soil-texture.jpg";
-import logoIcon from "@/assets/logo-icon.png";
 
-// Mock data
+import { TrendingUp, TrendingDown, FileCheck, Clock, Shield, Leaf } from "lucide-react";
 const certificationTrendData = [
   { mes: "Jan", certificados: 12, pendentes: 5 },
   { mes: "Fev", certificados: 19, pendentes: 3 },
@@ -61,33 +59,21 @@ const Analytics = () => {
       <div className="fixed inset-0 agro-pattern" />
 
       {/* Content */}
-      <div className="relative z-10 min-h-screen flex flex-col">
-        {/* Header */}
-        <header className="glass border-b border-border/50 sticky top-0 z-20">
-          <div className="container mx-auto px-4 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Link to="/dashboard">
-                  <Button variant="ghost" size="icon">
-                    <ArrowLeft className="w-5 h-5" />
-                  </Button>
-                </Link>
-                <img src={logoIcon} alt="AllyChain" className="w-10 h-10" />
-                <div>
-                  <h1 className="text-xl font-bold text-foreground">Analytics</h1>
-                  <p className="text-xs text-muted-foreground">Métricas e Inteligência Operacional</p>
-                </div>
-              </div>
-              <Button variant="glass" size="sm">
-                <Download className="w-4 h-4 mr-2" />
-                Exportar
-              </Button>
-            </div>
-          </div>
-        </header>
-
+      <div className="relative z-10 min-h-screen">
         {/* Main Content */}
-        <main className="flex-1 container mx-auto px-4 py-6 space-y-6">
+        <main className="container mx-auto px-4 py-6 space-y-6">
+          {/* Page Header */}
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h1 className="text-2xl font-bold text-foreground">Analytics</h1>
+              <p className="text-sm text-muted-foreground">Métricas e Inteligência Operacional</p>
+            </div>
+            <Button variant="glass" size="sm">
+              <Download className="w-4 h-4 mr-2" />
+              Exportar
+            </Button>
+          </div>
+
           {/* Filters */}
           <div className="flex gap-2 overflow-x-auto pb-2">
             <Select value={timeRange} onValueChange={setTimeRange}>

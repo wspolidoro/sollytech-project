@@ -1,11 +1,9 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Search, Filter, Plus, LogOut, BarChart3 } from "lucide-react";
+import { Search, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DocumentCard, Document } from "@/components/DocumentCard";
 import soilTexture from "@/assets/soil-texture.jpg";
-import logoIcon from "@/assets/logo-icon.png";
 
 // Mock data
 const mockDocuments: Document[] = [
@@ -66,36 +64,15 @@ const Dashboard = () => {
       <div className="fixed inset-0 agro-pattern" />
 
       {/* Content */}
-      <div className="relative z-10 min-h-screen flex flex-col">
-        {/* Header */}
-        <header className="glass border-b border-border/50 sticky top-0 z-20">
-          <div className="container mx-auto px-4 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <img src={logoIcon} alt="AllyChain" className="w-10 h-10" />
-                <div>
-                  <h1 className="text-xl font-bold text-foreground">AllyChain Docs</h1>
-                  <p className="text-xs text-muted-foreground">Gerenciador de Certificados</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Link to="/analytics">
-                  <Button variant="ghost" size="icon">
-                    <BarChart3 className="w-5 h-5" />
-                  </Button>
-                </Link>
-                <Link to="/">
-                  <Button variant="ghost" size="icon">
-                    <LogOut className="w-5 h-5" />
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          </div>
-        </header>
-
+      <div className="relative z-10 min-h-screen">
         {/* Main Content */}
-        <main className="flex-1 container mx-auto px-4 py-6 pb-24">
+        <main className="container mx-auto px-4 py-6 pb-24">
+          {/* Page Header */}
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold text-foreground mb-1">Dashboard</h1>
+            <p className="text-sm text-muted-foreground">Gestão de Certificados Blockchain</p>
+          </div>
+
           {/* Search Bar */}
           <div className="mb-6 flex gap-2">
             <div className="relative flex-1">
@@ -142,17 +119,6 @@ const Dashboard = () => {
             ))}
           </div>
         </main>
-
-        {/* FAB */}
-        <Link to="/add" className="fixed bottom-6 right-6 z-30">
-          <Button 
-            size="lg" 
-            variant="hero" 
-            className="rounded-full w-14 h-14 shadow-float"
-          >
-            <Plus className="w-6 h-6" />
-          </Button>
-        </Link>
       </div>
     </div>
   );
