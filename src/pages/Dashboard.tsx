@@ -11,39 +11,39 @@ import logoIcon from "@/assets/logo-icon.png";
 const mockDocuments: Document[] = [
   {
     id: "1",
-    name: "Organic Coffee Certification 2024",
-    producer: "Green Valley Farms",
-    location: "São Paulo, Brazil",
-    date: "2024-01-15",
+    name: "Certificação de Café Orgânico 2024",
+    producer: "Fazenda Vale Verde",
+    location: "São Paulo, Brasil",
+    date: "15/01/2024",
     status: "certified",
-    crop: "Coffee",
+    crop: "Café",
   },
   {
     id: "2",
-    name: "Sustainable Soybean Report",
-    producer: "EcoAgro Solutions",
-    location: "Mato Grosso, Brazil",
-    date: "2024-01-20",
+    name: "Relatório de Soja Sustentável",
+    producer: "EcoAgro Soluções",
+    location: "Mato Grosso, Brasil",
+    date: "20/01/2024",
     status: "certified",
-    crop: "Soybean",
+    crop: "Soja",
   },
   {
     id: "3",
-    name: "Environmental Compliance Q1",
-    producer: "Terra Nova Agricultural",
-    location: "Paraná, Brazil",
-    date: "2024-01-25",
+    name: "Conformidade Ambiental T1",
+    producer: "Terra Nova Agrícola",
+    location: "Paraná, Brasil",
+    date: "25/01/2024",
     status: "pending",
-    crop: "Corn",
+    crop: "Milho",
   },
   {
     id: "4",
-    name: "Regenerative Agriculture Audit",
-    producer: "Soil Guardians Co.",
-    location: "Goiás, Brazil",
-    date: "2024-02-01",
+    name: "Auditoria de Agricultura Regenerativa",
+    producer: "Guardiões do Solo",
+    location: "Goiás, Brasil",
+    date: "01/02/2024",
     status: "certified",
-    crop: "Cotton",
+    crop: "Algodão",
   },
 ];
 
@@ -75,7 +75,7 @@ const Dashboard = () => {
                 <img src={logoIcon} alt="AllyChain" className="w-10 h-10" />
                 <div>
                   <h1 className="text-xl font-bold text-foreground">AllyChain Docs</h1>
-                  <p className="text-xs text-muted-foreground">Certificate Manager</p>
+                  <p className="text-xs text-muted-foreground">Gerenciador de Certificados</p>
                 </div>
               </div>
               <Link to="/">
@@ -94,7 +94,7 @@ const Dashboard = () => {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
-                placeholder="Search documents, producers..."
+                placeholder="Buscar documentos, produtores..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10 bg-white/90"
@@ -115,20 +115,20 @@ const Dashboard = () => {
               <div className="text-2xl font-bold text-success">
                 {mockDocuments.filter(d => d.status === "certified").length}
               </div>
-              <div className="text-xs text-muted-foreground">Certified</div>
+              <div className="text-xs text-muted-foreground">Certificados</div>
             </div>
             <div className="glass p-4 rounded-xl border border-border/50">
               <div className="text-2xl font-bold text-muted-foreground">
                 {mockDocuments.filter(d => d.status === "pending").length}
               </div>
-              <div className="text-xs text-muted-foreground">Pending</div>
+              <div className="text-xs text-muted-foreground">Pendentes</div>
             </div>
           </div>
 
           {/* Documents List */}
           <div className="space-y-3">
             <h2 className="text-lg font-semibold text-foreground mb-3">
-              All Records ({filteredDocuments.length})
+              Todos os Registros ({filteredDocuments.length})
             </h2>
             {filteredDocuments.map((doc) => (
               <DocumentCard key={doc.id} document={doc} />

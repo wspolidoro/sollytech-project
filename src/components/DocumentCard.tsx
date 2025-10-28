@@ -51,12 +51,12 @@ export const DocumentCard = ({ document }: DocumentCardProps) => {
             {document.status === "certified" ? (
               <Link to={`/certificate/${document.id}`}>
                 <Button size="sm" variant="ghost" className="text-xs h-7">
-                  View Details
+                  Ver Detalhes
                 </Button>
               </Link>
             ) : (
               <Button size="sm" variant="pending" className="text-xs h-7">
-                Certify Now
+                Certificar
               </Button>
             )}
           </div>

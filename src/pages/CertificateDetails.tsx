@@ -17,16 +17,16 @@ const CertificateDetails = () => {
   // Mock certificate data
   const certificate = {
     id: id || "1",
-    name: "Organic Coffee Certification 2024",
-    producer: "Green Valley Farms",
-    location: "São Paulo, Brazil",
-    date: "2024-01-15",
-    validUntil: "2025-01-15",
+    name: "Certificação de Café Orgânico 2024",
+    producer: "Fazenda Vale Verde",
+    location: "São Paulo, Brasil",
+    date: "15/01/2024",
+    validUntil: "15/01/2025",
     status: "certified" as const,
-    crop: "Arabica Coffee",
+    crop: "Café Arábica",
     area: "250 hectares",
     blockchainHash: "0x7d8f9a2b4c1e6f3a8d5c9e2b7f4a1c8d3e6f9a2b5c8e1f4a7d3c9e6b2f5a8c1d",
-    certifiedBy: "AgriChain Validators",
+    certifiedBy: "Validadores AgriChain",
     certificationDate: "2024-01-15T10:30:00Z",
   };
 
@@ -39,8 +39,8 @@ const CertificateDetails = () => {
   const copyHash = () => {
     navigator.clipboard.writeText(certificate.blockchainHash);
     toast({
-      title: "Copied!",
-      description: "Blockchain hash copied to clipboard",
+      title: "Copiado!",
+      description: "Hash blockchain copiado para a área de transferência",
     });
   };
 
@@ -61,7 +61,7 @@ const CertificateDetails = () => {
             <Link to="/dashboard">
               <Button variant="ghost" size="sm">
                 <ArrowLeft className="w-4 h-4" />
-                Back to Records
+                Voltar aos Registros
               </Button>
             </Link>
           </div>
@@ -92,10 +92,10 @@ const CertificateDetails = () => {
                 )}
                 <div className="text-center">
                   <p className="text-sm font-medium text-foreground mb-1">
-                    Scan to Verify Authenticity
+                    Escaneie para Verificar Autenticidade
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Verified on blockchain network
+                    Verificado na rede blockchain
                   </p>
                 </div>
               </div>
@@ -105,14 +105,14 @@ const CertificateDetails = () => {
           {/* Document Details */}
           <Card className="glass border border-border/50">
             <CardHeader>
-              <CardTitle className="text-base">Certificate Details</CardTitle>
+              <CardTitle className="text-base">Detalhes do Certificado</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 gap-3">
                 <div className="flex items-start gap-3">
                   <User className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
                   <div>
-                    <p className="text-xs text-muted-foreground">Producer</p>
+                    <p className="text-xs text-muted-foreground">Produtor</p>
                     <p className="text-sm font-medium">{certificate.producer}</p>
                   </div>
                 </div>
@@ -120,7 +120,7 @@ const CertificateDetails = () => {
                 <div className="flex items-start gap-3">
                   <MapPin className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
                   <div>
-                    <p className="text-xs text-muted-foreground">Location</p>
+                    <p className="text-xs text-muted-foreground">Localização</p>
                     <p className="text-sm font-medium">{certificate.location}</p>
                   </div>
                 </div>
@@ -128,7 +128,7 @@ const CertificateDetails = () => {
                 <div className="flex items-start gap-3">
                   <Package className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
                   <div>
-                    <p className="text-xs text-muted-foreground">Crop / Area</p>
+                    <p className="text-xs text-muted-foreground">Cultura / Área</p>
                     <p className="text-sm font-medium">{certificate.crop} • {certificate.area}</p>
                   </div>
                 </div>
@@ -136,7 +136,7 @@ const CertificateDetails = () => {
                 <div className="flex items-start gap-3">
                   <Calendar className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
                   <div>
-                    <p className="text-xs text-muted-foreground">Valid Period</p>
+                    <p className="text-xs text-muted-foreground">Período de Validade</p>
                     <p className="text-sm font-medium">{certificate.date} → {certificate.validUntil}</p>
                   </div>
                 </div>
@@ -147,12 +147,12 @@ const CertificateDetails = () => {
           {/* Blockchain Hash */}
           <Card className="glass border border-border/50">
             <CardHeader>
-              <CardTitle className="text-base">Blockchain Proof</CardTitle>
+              <CardTitle className="text-base">Prova Blockchain</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
                 <div>
-                  <p className="text-xs text-muted-foreground mb-2">Immutable Hash ID</p>
+                  <p className="text-xs text-muted-foreground mb-2">ID Hash Imutável</p>
                   <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg border border-border">
                     <code className="text-xs flex-1 overflow-hidden text-ellipsis font-mono">
                       {certificate.blockchainHash}
@@ -165,13 +165,13 @@ const CertificateDetails = () => {
 
                 <div className="grid grid-cols-2 gap-3 text-xs">
                   <div>
-                    <p className="text-muted-foreground mb-1">Certified By</p>
+                    <p className="text-muted-foreground mb-1">Certificado Por</p>
                     <p className="font-medium">{certificate.certifiedBy}</p>
                   </div>
                   <div>
-                    <p className="text-muted-foreground mb-1">Timestamp</p>
+                    <p className="text-muted-foreground mb-1">Data e Hora</p>
                     <p className="font-medium">
-                      {new Date(certificate.certificationDate).toLocaleString()}
+                      {new Date(certificate.certificationDate).toLocaleString("pt-BR")}
                     </p>
                   </div>
                 </div>
@@ -183,11 +183,11 @@ const CertificateDetails = () => {
           <div className="flex gap-3">
             <Button variant="hero" className="flex-1">
               <Download className="w-4 h-4" />
-              Download PDF
+              Baixar PDF
             </Button>
             <Button variant="glass" className="flex-1">
               <Share2 className="w-4 h-4" />
-              Share
+              Compartilhar
             </Button>
           </div>
         </main>

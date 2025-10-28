@@ -20,10 +20,10 @@ export const BlockchainBadge = ({ verified = true, className }: BlockchainBadgeP
       <Shield className={cn("w-5 h-5", verified && "animate-glow")} />
       <div className="flex flex-col">
         <span className="text-xs font-medium">
-          {verified ? "Blockchain Verified" : "Not Verified"}
+          {verified ? "Verificado na Blockchain" : "Não Verificado"}
         </span>
         <span className="text-[10px] opacity-70">
-          {verified ? "Immutable Record" : "Pending Certification"}
+          {verified ? "Registro Imutável" : "Certificação Pendente"}
         </span>
       </div>
       {verified && <Check className="w-4 h-4" />}

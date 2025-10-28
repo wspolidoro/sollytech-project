@@ -28,8 +28,8 @@ const AddDocument = () => {
     await new Promise(resolve => setTimeout(resolve, 2000));
 
     toast({
-      title: "Certificate Created!",
-      description: "Document successfully anchored on blockchain",
+      title: "Certificado Criado!",
+      description: "Documento ancorado com sucesso na blockchain",
     });
 
     setIsSubmitting(false);
@@ -57,7 +57,7 @@ const AddDocument = () => {
             <Link to="/dashboard">
               <Button variant="ghost" size="sm">
                 <ArrowLeft className="w-4 h-4" />
-                Back to Dashboard
+                Voltar ao Painel
               </Button>
             </Link>
           </div>
@@ -66,23 +66,23 @@ const AddDocument = () => {
         <main className="container mx-auto px-4 max-w-2xl">
           <Card className="glass border-2 border-border/50 shadow-card">
             <CardHeader>
-              <CardTitle className="text-xl">Certify New Document</CardTitle>
+              <CardTitle className="text-xl">Certificar Novo Documento</CardTitle>
               <p className="text-sm text-muted-foreground">
-                Register and anchor your document on blockchain
+                Registre e ancore seu documento na blockchain
               </p>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* File Upload */}
                 <div className="space-y-2">
-                  <Label>Document Upload</Label>
+                  <Label>Upload do Documento</Label>
                   <div className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-primary transition-colors cursor-pointer bg-muted/20">
                     <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
                     <p className="text-sm text-muted-foreground mb-1">
-                      Click to upload or drag and drop
+                      Clique para fazer upload ou arraste e solte
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      PDF, PNG, JPG (max 10MB)
+                      PDF, PNG, JPG (máx 10MB)
                     </p>
                   </div>
                 </div>
@@ -90,10 +90,10 @@ const AddDocument = () => {
                 {/* Document Details */}
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="name">Document Name *</Label>
+                    <Label htmlFor="name">Nome do Documento *</Label>
                     <Input
                       id="name"
-                      placeholder="e.g., Organic Coffee Certification 2024"
+                      placeholder="ex: Certificação de Café Orgânico 2024"
                       value={formData.name}
                       onChange={(e) => handleChange("name", e.target.value)}
                       required
@@ -102,10 +102,10 @@ const AddDocument = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="producer">Producer / Farm Name *</Label>
+                    <Label htmlFor="producer">Produtor / Nome da Fazenda *</Label>
                     <Input
                       id="producer"
-                      placeholder="e.g., Green Valley Farms"
+                      placeholder="ex: Fazenda Vale Verde"
                       value={formData.producer}
                       onChange={(e) => handleChange("producer", e.target.value)}
                       required
@@ -114,10 +114,10 @@ const AddDocument = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="location">Location *</Label>
+                    <Label htmlFor="location">Localização *</Label>
                     <Input
                       id="location"
-                      placeholder="e.g., São Paulo, Brazil"
+                      placeholder="ex: São Paulo, Brasil"
                       value={formData.location}
                       onChange={(e) => handleChange("location", e.target.value)}
                       required
@@ -127,10 +127,10 @@ const AddDocument = () => {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="crop">Crop Type</Label>
+                      <Label htmlFor="crop">Tipo de Cultura</Label>
                       <Input
                         id="crop"
-                        placeholder="e.g., Coffee"
+                        placeholder="ex: Café"
                         value={formData.crop}
                         onChange={(e) => handleChange("crop", e.target.value)}
                         className="bg-white/90"
@@ -138,10 +138,10 @@ const AddDocument = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="area">Area (hectares)</Label>
+                      <Label htmlFor="area">Área (hectares)</Label>
                       <Input
                         id="area"
-                        placeholder="e.g., 250"
+                        placeholder="ex: 250"
                         value={formData.area}
                         onChange={(e) => handleChange("area", e.target.value)}
                         className="bg-white/90"
@@ -153,9 +153,9 @@ const AddDocument = () => {
                 {/* Info Box */}
                 <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
                   <p className="text-xs text-muted-foreground">
-                    <span className="font-medium text-primary">Blockchain Security:</span> Your document 
-                    will be anchored on an immutable blockchain network, ensuring permanent verification 
-                    and tamper-proof certification.
+                    <span className="font-medium text-primary">Segurança Blockchain:</span> Seu documento 
+                    será ancorado em uma rede blockchain imutável, garantindo verificação permanente 
+                    e certificação à prova de adulteração.
                   </p>
                 </div>
 
@@ -170,10 +170,10 @@ const AddDocument = () => {
                   {isSubmitting ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      Certifying on Blockchain...
+                      Certificando na Blockchain...
                     </>
                   ) : (
-                    "Certify Now on Blockchain"
+                    "Certificar na Blockchain"
                   )}
                 </Button>
               </form>

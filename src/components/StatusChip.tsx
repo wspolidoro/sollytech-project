@@ -12,19 +12,19 @@ export const StatusChip = ({ status, className }: StatusChipProps) => {
       bg: "bg-success/10 border-success",
       text: "text-success",
       icon: CheckCircle2,
-      label: "Certified",
+      label: "Certificado",
     },
     pending: {
       bg: "bg-muted border-muted-foreground/30",
       text: "text-muted-foreground",
       icon: Clock,
-      label: "Pending",
+      label: "Pendente",
     },
     rejected: {
       bg: "bg-destructive/10 border-destructive",
       text: "text-destructive",
       icon: AlertCircle,
-      label: "Rejected",
+      label: "Rejeitado",
     },
   };
 
