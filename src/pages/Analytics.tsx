@@ -116,10 +116,10 @@ const Analytics = () => {
 
           {/* KPI Cards */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            <Card className="glass border-border/50">
+            <Card className="glass border-border/50 hover-scale animate-fade-in">
               <CardContent className="p-4">
                 <div className="flex items-start justify-between mb-2">
-                  <FileCheck className="w-5 h-5 text-primary" />
+                  <FileCheck className="w-5 h-5 text-primary animate-pulse" />
                   <div className="flex items-center gap-1 text-success text-xs">
                     <TrendingUp className="w-3 h-3" />
                     +12%
@@ -130,10 +130,10 @@ const Analytics = () => {
               </CardContent>
             </Card>
 
-            <Card className="glass border-border/50">
+            <Card className="glass border-border/50 hover-scale animate-fade-in" style={{ animationDelay: '0.1s' }}>
               <CardContent className="p-4">
                 <div className="flex items-start justify-between mb-2">
-                  <Shield className="w-5 h-5 text-success" />
+                  <Shield className="w-5 h-5 text-success animate-pulse" />
                   <div className="flex items-center gap-1 text-success text-xs">
                     <TrendingUp className="w-3 h-3" />
                     +8%
@@ -144,7 +144,7 @@ const Analytics = () => {
               </CardContent>
             </Card>
 
-            <Card className="glass border-border/50">
+            <Card className="glass border-border/50 hover-scale animate-fade-in" style={{ animationDelay: '0.2s' }}>
               <CardContent className="p-4">
                 <div className="flex items-start justify-between mb-2">
                   <Clock className="w-5 h-5 text-muted-foreground" />
@@ -158,10 +158,10 @@ const Analytics = () => {
               </CardContent>
             </Card>
 
-            <Card className="glass border-border/50">
+            <Card className="glass border-border/50 hover-scale animate-fade-in" style={{ animationDelay: '0.3s' }}>
               <CardContent className="p-4">
                 <div className="flex items-start justify-between mb-2">
-                  <Leaf className="w-5 h-5 text-primary" />
+                  <Leaf className="w-5 h-5 text-primary animate-pulse" />
                   <div className="flex items-center gap-1 text-success text-xs">
                     <TrendingUp className="w-3 h-3" />
                     +2%
@@ -174,7 +174,7 @@ const Analytics = () => {
           </div>
 
           {/* Certification Trend Chart */}
-          <Card className="glass border-border/50">
+          <Card className="glass border-border/50 animate-fade-in" style={{ animationDelay: '0.4s' }}>
             <CardHeader>
               <CardTitle className="text-foreground">Certificações ao Longo do Tempo</CardTitle>
             </CardHeader>
@@ -182,14 +182,21 @@ const Analytics = () => {
               <div className="h-[250px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={certificationTrendData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <defs>
+                      <linearGradient id="colorCertificados" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="hsl(var(--success))" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="hsl(var(--success))" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
                     <XAxis dataKey="mes" stroke="hsl(var(--muted-foreground))" />
                     <YAxis stroke="hsl(var(--muted-foreground))" />
                     <Tooltip 
                       contentStyle={{ 
                         backgroundColor: 'hsl(var(--card))',
                         border: '1px solid hsl(var(--border))',
-                        borderRadius: '8px'
+                        borderRadius: '8px',
+                        boxShadow: 'var(--shadow-elegant)'
                       }}
                     />
                     <Legend />
@@ -197,15 +204,24 @@ const Analytics = () => {
                       type="monotone" 
                       dataKey="certificados" 
                       stroke="hsl(var(--success))" 
-                      strokeWidth={2}
+                      strokeWidth={3}
                       name="Certificados"
+                      dot={{ fill: 'hsl(var(--success))', strokeWidth: 2, r: 5 }}
+                      activeDot={{ r: 8, strokeWidth: 2 }}
+                      animationDuration={1500}
+                      animationBegin={0}
                     />
                     <Line 
                       type="monotone" 
                       dataKey="pendentes" 
                       stroke="hsl(var(--muted-foreground))" 
-                      strokeWidth={2}
+                      strokeWidth={3}
                       name="Pendentes"
+                      dot={{ fill: 'hsl(var(--muted-foreground))', strokeWidth: 2, r: 5 }}
+                      activeDot={{ r: 8, strokeWidth: 2 }}
+                      animationDuration={1500}
+                      animationBegin={200}
+                      strokeDasharray="5 5"
                     />
                   </LineChart>
                 </ResponsiveContainer>
@@ -216,7 +232,7 @@ const Analytics = () => {
           {/* Distribution Charts */}
           <div className="grid lg:grid-cols-2 gap-4">
             {/* Crop Distribution */}
-            <Card className="glass border-border/50">
+            <Card className="glass border-border/50 animate-fade-in hover-scale" style={{ animationDelay: '0.5s' }}>
               <CardHeader>
                 <CardTitle className="text-foreground">Distribuição por Cultura</CardTitle>
               </CardHeader>
@@ -233,16 +249,24 @@ const Analytics = () => {
                         outerRadius={80}
                         fill="#8884d8"
                         dataKey="value"
+                        animationBegin={0}
+                        animationDuration={1200}
+                        animationEasing="ease-out"
                       >
                         {cropDistributionData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
+                          <Cell 
+                            key={`cell-${index}`} 
+                            fill={entry.color}
+                            className="transition-all duration-300 hover:opacity-80"
+                          />
                         ))}
                       </Pie>
                       <Tooltip 
                         contentStyle={{ 
                           backgroundColor: 'hsl(var(--card))',
                           border: '1px solid hsl(var(--border))',
-                          borderRadius: '8px'
+                          borderRadius: '8px',
+                          boxShadow: 'var(--shadow-elegant)'
                         }}
                       />
                     </PieChart>
@@ -252,7 +276,7 @@ const Analytics = () => {
             </Card>
 
             {/* Region Distribution */}
-            <Card className="glass border-border/50">
+            <Card className="glass border-border/50 animate-fade-in hover-scale" style={{ animationDelay: '0.6s' }}>
               <CardHeader>
                 <CardTitle className="text-foreground">Certificações por Região</CardTitle>
               </CardHeader>
@@ -269,16 +293,24 @@ const Analytics = () => {
                         outerRadius={80}
                         fill="#8884d8"
                         dataKey="value"
+                        animationBegin={200}
+                        animationDuration={1200}
+                        animationEasing="ease-out"
                       >
                         {regionData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={cropDistributionData[index % cropDistributionData.length].color} />
+                          <Cell 
+                            key={`cell-${index}`} 
+                            fill={cropDistributionData[index % cropDistributionData.length].color}
+                            className="transition-all duration-300 hover:opacity-80"
+                          />
                         ))}
                       </Pie>
                       <Tooltip 
                         contentStyle={{ 
                           backgroundColor: 'hsl(var(--card))',
                           border: '1px solid hsl(var(--border))',
-                          borderRadius: '8px'
+                          borderRadius: '8px',
+                          boxShadow: 'var(--shadow-elegant)'
                         }}
                       />
                     </PieChart>
@@ -289,7 +321,7 @@ const Analytics = () => {
           </div>
 
           {/* Producer Ranking */}
-          <Card className="glass border-border/50">
+          <Card className="glass border-border/50 animate-fade-in" style={{ animationDelay: '0.7s' }}>
             <CardHeader>
               <CardTitle className="text-foreground">Ranking de Produtores</CardTitle>
             </CardHeader>
@@ -297,17 +329,31 @@ const Analytics = () => {
               <div className="h-[300px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={producerRankingData} layout="vertical">
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <defs>
+                      <linearGradient id="colorBar" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={1}/>
+                        <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0.6}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
                     <XAxis type="number" stroke="hsl(var(--muted-foreground))" />
                     <YAxis dataKey="producer" type="category" stroke="hsl(var(--muted-foreground))" width={150} />
                     <Tooltip 
                       contentStyle={{ 
                         backgroundColor: 'hsl(var(--card))',
                         border: '1px solid hsl(var(--border))',
-                        borderRadius: '8px'
+                        borderRadius: '8px',
+                        boxShadow: 'var(--shadow-elegant)'
                       }}
                     />
-                    <Bar dataKey="total" fill="hsl(var(--primary))" name="Certificados" />
+                    <Bar 
+                      dataKey="total" 
+                      fill="url(#colorBar)" 
+                      name="Certificados"
+                      radius={[0, 8, 8, 0]}
+                      animationDuration={1200}
+                      animationBegin={0}
+                    />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -315,10 +361,10 @@ const Analytics = () => {
           </Card>
 
           {/* Blockchain Performance */}
-          <Card className="glass border-border/50">
+          <Card className="glass border-border/50 animate-fade-in" style={{ animationDelay: '0.8s' }}>
             <CardHeader>
               <CardTitle className="text-foreground flex items-center gap-2">
-                <Shield className="w-5 h-5 text-success" />
+                <Shield className="w-5 h-5 text-success animate-pulse" />
                 Performance Blockchain
               </CardTitle>
             </CardHeader>
@@ -329,16 +375,16 @@ const Analytics = () => {
               </div>
               <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
                 <div 
-                  className="h-full bg-gradient-success transition-all duration-500"
+                  className="h-full bg-gradient-success transition-all duration-1000 animate-fade-in"
                   style={{ width: `${blockchainSuccessRate}%` }}
                 />
               </div>
               <div className="grid grid-cols-2 gap-4 pt-4">
-                <div className="glass p-3 rounded-lg border border-border/30">
+                <div className="glass p-3 rounded-lg border border-border/30 hover-scale">
                   <div className="text-xs text-muted-foreground">Registros Imutáveis</div>
                   <div className="text-xl font-bold text-foreground">{certifiedDocs}</div>
                 </div>
-                <div className="glass p-3 rounded-lg border border-border/30">
+                <div className="glass p-3 rounded-lg border border-border/30 hover-scale">
                   <div className="text-xs text-muted-foreground">Tempo Médio</div>
                   <div className="text-xl font-bold text-foreground">2.3s</div>
                 </div>
