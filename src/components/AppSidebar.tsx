@@ -27,10 +27,10 @@ export function AppSidebar() {
       <SidebarContent className="glass border-r border-border/50">
         {/* Logo */}
         <div className="p-4 flex items-center gap-3 border-b border-border/50">
-          <img src={logoIcon} alt="Solltchain" className="w-8 h-8" />
+          <img src={logoIcon} alt="Sollytchain" className="w-8 h-8" />
           {open && (
             <div>
-              <h2 className="font-bold text-foreground">Solltchain</h2>
+              <h2 className="font-bold text-foreground">Sollytchain</h2>
               <p className="text-xs text-muted-foreground">Docs</p>
             </div>
           )}

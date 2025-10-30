@@ -22,7 +22,7 @@ const Login = () => {
     if (email && password) {
       toast({
         title: "Login realizado com sucesso",
-        description: "Bem-vindo ao AllyChain Docs",
+        description: "Bem-vindo ao Sollytchain",
       });
       navigate("/dashboard");
     } else {
@@ -52,13 +52,13 @@ const Login = () => {
         <CardHeader className="text-center space-y-4">
           <div className="flex justify-center">
             <div className="relative">
-              <img src={logoIcon} alt="AllyChain" className="w-20 h-20 animate-float" />
+              <img src={logoIcon} alt="Sollytchain" className="w-20 h-20 animate-float" />
               <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-glow" />
             </div>
           </div>
           <div>
             <CardTitle className="text-2xl font-bold bg-gradient-hero bg-clip-text text-transparent">
-              AllyChain Docs
+              Sollytchain
             </CardTitle>
             <CardDescription className="text-foreground/80 font-medium">
               Gerenciador de Certificados Blockchain
