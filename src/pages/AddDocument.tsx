@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Upload, Loader2 } from "lucide-react";
+import { Upload, Loader2, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,24 +8,39 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import soilTexture from "@/assets/soil-texture.jpg";
 
+//LIBS
+import * as XLSX from "xlsx";
+
 const AddDocument = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  //const [planilhaJson, setPlanilha] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
     producer: "",
     location: "",
     crop: "",
     area: "",
+    arquivo: null,
   });
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     // Simulate blockchain certification
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    //await new Promise(resolve => setTimeout(resolve, 2000));
+    /*     const form = e.currentTarget; // TS reconhece como HTMLFormElement
+    
+        const formData = new FormData(form);
+    
+        const nome = formData.get("nome");
+        const arquivo = formData.get("arquivo") as File | null;
+    
+        convertFileToJson(arquivo) */
+
+
 
     toast({
       title: "Certificado Criado!",
@@ -33,17 +48,57 @@ const AddDocument = () => {
     });
 
     setIsSubmitting(false);
-    navigate("/dashboard");
+    //navigate("/dashboard");
   };
 
-  const handleChange = (field: string, value: string) => {
+  const handleChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+
+    if (field === "arquivo") {
+      convertFileToJson(value);
+    }
   };
+
+  //Converter para json
+  function convertFileToJson(arquivo: File) {
+    const file = arquivo;//e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = (event) => {
+      const data = event.target?.result;
+      if (!data) return;
+
+      // Lê o arquivo binário
+      const workbook = XLSX.read(data, { type: "binary" });
+
+      // Pega a primeira aba
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
+
+      // Converte para JSON
+      const json = XLSX.utils.sheet_to_json(sheet);
+
+      //console.log("JSON convertido:", json);
+
+      // Se quiser setar em estado, por exemplo:
+      ///setPlanilha(json);
+
+      setFormData(prev => ({
+        ...prev,
+        fileJson: json
+      }));
+    };
+
+    reader.readAsBinaryString(file);
+  }
+
 
   return (
     <div className="min-h-screen relative">
       {/* Background */}
-      <div 
+      <div
         className="fixed inset-0 bg-cover bg-center opacity-10"
         style={{ backgroundImage: `url(${soilTexture})` }}
       />
@@ -71,13 +126,45 @@ const AddDocument = () => {
                 <div className="space-y-2">
                   <Label>Upload do Documento</Label>
                   <div className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-primary transition-colors cursor-pointer bg-muted/20">
-                    <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
-                    <p className="text-sm text-muted-foreground mb-1">
-                      Clique para fazer upload ou arraste e solte
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      PDF, PNG, JPG (máx 10MB)
-                    </p>
+                    <label htmlFor="document">
+                      {!formData.arquivo ? (
+                        <>
+                          <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+                          <p className="text-sm text-muted-foreground mb-1">
+                            Clique para fazer upload ou arraste e solte
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            XLSX (máx 10MB)
+                          </p>
+                        </>
+                      ) : (
+                        <>
+                          <Check className="w-8 h-8 mx-auto mb-2 text-green-600" />
+                          <p className="text-sm font-semibold text-foreground">
+                            Arquivo carregado!
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {formData.arquivo.name}
+                          </p>
+                        </>
+                      )}
+                      {/*    <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+                      <p className="text-sm text-muted-foreground mb-1">
+                        Clique para fazer upload ou arraste e solte
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        XLSX (máx 10MB)
+                      </p> */}
+                      {/* input invisível, mas funcional */}
+                      <input
+                        type="file"
+                        name="arquivo"
+                        id="document"
+                        accept=".pdf, .png, .jpg, .jpeg, .xlsx"
+                        className="hidden"
+                        onChange={e => handleChange("arquivo", e.target.files?.[0] ?? null)}
+                      />
+                    </label>
                   </div>
                 </div>
 
@@ -147,17 +234,17 @@ const AddDocument = () => {
                 {/* Info Box */}
                 <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
                   <p className="text-xs text-muted-foreground">
-                    <span className="font-medium text-primary">Segurança Blockchain:</span> Seu documento 
-                    será ancorado em uma rede blockchain imutável, garantindo verificação permanente 
+                    <span className="font-medium text-primary">Segurança Blockchain:</span> Seu documento
+                    será ancorado em uma rede blockchain imutável, garantindo verificação permanente
                     e certificação à prova de adulteração.
                   </p>
                 </div>
 
                 {/* Submit Button */}
-                <Button 
-                  type="submit" 
-                  variant="hero" 
-                  size="lg" 
+                <Button
+                  type="submit"
+                  variant="hero"
+                  size="lg"
                   className="w-full"
                   disabled={isSubmitting}
                 >
