@@ -48,7 +48,7 @@ const AddDocument = () => {
     });
 
     setIsSubmitting(false);
-    //navigate("/dashboard");
+    navigate("/dashboard");
   };
 
   const handleChange = (field: string, value: any) => {
