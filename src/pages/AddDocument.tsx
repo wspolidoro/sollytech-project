@@ -20,7 +20,8 @@ const AddDocument = () => {
     location: "",
     crop: "",
     area: "",
-    arquivo: null,
+    arquivo: null, 
+    //testID: "1234567890",
   });
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -40,6 +41,48 @@ const AddDocument = () => {
     
         convertFileToJson(arquivo) */
 
+        console.log("Dados do formulário:", formData);
+        const { data, ...rest } = formData;
+
+
+   /*      fetch("http://localhost:3033/relatorio", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(rest),
+        })
+        .then(response => response.json())
+        .then(res => {
+          console.log("Success:", res);
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });   */
+
+        fetch("https://pc-casa-wsl.tail40be7e.ts.net/invoke", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        } )
+        .then(response => response.json())
+        .then(res => {
+          console.log("Success:", res);
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });   
+
+   /*       fetch("https://pc-casa-wsl.tail40be7e.ts.net/teste", {mode: 'cors',})
+        .then(response => response.json())
+        .then(res => {
+          console.log("Success:", res);
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });  */
 
 
     toast({
@@ -48,7 +91,7 @@ const AddDocument = () => {
     });
 
     setIsSubmitting(false);
-    navigate("/dashboard");
+    //navigate("/dashboard");
   };
 
   const handleChange = (field: string, value: any) => {
@@ -87,8 +130,8 @@ const AddDocument = () => {
 
       setFormData(prev => ({
         ...prev,
-        fileJson: json
-      }));
+        data: json
+      })); 
     };
 
     reader.readAsBinaryString(file);
