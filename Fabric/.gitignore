@@ -1,0 +1,45 @@
+node_modules
+
+# Fabric-generated files
+fabric/crypto-config
+fabric/channel-artifacts
+fabric/ca
+fabric/bin
+fabric/builders
+chaincode/vendor/*
+chaincode/collections.json
+ccapi/vendor/*
+cc-tools-demo.tar.gz
+package-lock.json
+client/uploads/
+
+# Go dependencies - NUNCA versionar vendor
+vendor/
+
+# Docker and build outputs
+*.log
+*.out
+*.tar
+*.tgz
+*.zip
+*.bak
+docker-compose.yaml.backup
+*.pid
+
+# IDE / OS junk
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.vscode/
+.idea/
+*.Identifier
+
+# Environment files and secrets
+.env
+.envrc
+.env.*
+*appveyor.yml
+*webhook*
+*slack*
+*secret*

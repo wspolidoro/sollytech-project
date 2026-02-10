@@ -1,0 +1,25 @@
+services:
+  web-iface:
+    build: .
+    container_name: fabric-web-iface
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./resources:/app/resources
+      - ./views:/app/views
+      - ../fabric:/app/fabric
+    environment:
+      - NODE_ENV=production
+    working_dir: /app
+    network_mode: host
+    command: >
+      sh -c "
+        ln -sf /app/fabric /app/../../fabric 2>/dev/null || true &&
+        node server.js
+      "
+
+networks:
+  fabric-network:
+    external: true
+    name: cc-tools-demo-net

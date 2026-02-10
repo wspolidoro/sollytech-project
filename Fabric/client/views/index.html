@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Execução de Chaincodes - Sollytch</title>
+
+<style>
+:root {
+  --primary: #1e7a35;
+  --primary-dark: #145427;
+  --secondary: #2563eb;
+  --secondary-dark: #1d4ed8;
+  --bg: #f4fbf6;
+  --card: #ffffff;
+  --muted: #6b8b73;
+  --danger: #dc2626;
+  --warning: #d97706;
+  --success: #059669;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--bg);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  padding: 20px;
+  color: #333;
+}
+
+.container {
+  background: var(--card);
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.1);
+  width: 95%;
+  max-width: 900px;
+  margin: 20px 0;
+}
+
+h2 {
+  color: var(--primary-dark);
+  margin-bottom: 25px;
+  text-align: center;
+  font-size: 1.8rem;
+}
+
+h3 {
+  color: var(--primary);
+  margin: 20px 0 10px 0;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #e7f4ea;
+}
+
+.form-group {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  font-weight: 600;
+  color: var(--muted);
+  text-align: left;
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+
+select, textarea, input[type="text"], input[type="number"], input[type="file"] {
+  padding: 12px 15px;
+  border-radius: 10px;
+  border: 2px solid #e0e0e0;
+  font-size: 1rem;
+  font-family: inherit;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+select:focus, textarea:focus, input[type="text"]:focus, input[type="number"]:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(30, 122, 53, 0.1);
+}
+
+textarea {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  resize: vertical;
+  min-height: 100px;
+}
+
+.input-wrapper {
+  display: flex;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  overflow: hidden;
+  transition: border-color 0.3s;
+}
+
+.input-wrapper:focus-within {
+  border-color: var(--primary);
+}
+
+.prefix {
+  background: #e7f4ea;
+  padding: 12px 15px;
+  font-family: monospace;
+  font-weight: bold;
+  color: var(--primary-dark);
+  display: flex;
+  align-items: center;
+  min-width: 80px;
+}
+
+.input-without-border {
+  border: none;
+  padding: 12px 15px;
+  font-family: inherit;
+  width: 100%;
+  outline: none;
+}
+
+.hidden {
+  display: none;
+}
+
+.visible {
+  display: flex !important;
+}
+
+.flex-row {
+  flex-direction: row;
+  align-items: center;
+  gap: 15px;
+}
+
+.flex-row label {
+  margin-bottom: 0;
+  min-width: 120px;
+}
+
+/* Botões */
+button {
+  padding: 12px 24px;
+  border-radius: 10px;
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.primary-btn {
+  background: var(--primary);
+  color: white;
+}
+
+.primary-btn:hover {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+}
+
+.secondary-btn {
+  background: var(--secondary);
+  color: white;
+}
+
+.secondary-btn:hover {
+  background: var(--secondary-dark);
+  transform: translateY(-2px);
+}
+
+.danger-btn {
+  background: var(--danger);
+  color: white;
+}
+
+.danger-btn:hover {
+  background: #b91c1c;
+  transform: translateY(-2px);
+}
+
+.action-buttons {
+  display: flex;
+  gap: 15px;
+  margin-top: 30px;
+  flex-wrap: wrap;
+}
+
+/* Resultados */
+.result-container {
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 20px;
+  margin-top: 20px;
+  border-left: 4px solid var(--primary);
+}
+
+.result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.result-title {
+  font-weight: 600;
+  color: var(--primary-dark);
+  font-size: 1.1rem;
+}
+
+.result-content {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 15px;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  border-bottom: 2px solid #e0e0e0;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+}
+
+.tab {
+  padding: 12px 24px;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--muted);
+  border-bottom: 3px solid transparent;
+  transition: all 0.3s;
+}
+
+.tab:hover {
+  color: var(--primary);
+  background: #f0f9f2;
+}
+
+.tab.active {
+  color: var(--primary-dark);
+  border-bottom-color: var(--primary);
+  background: #f0f9f2;
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Status */
+.status {
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: inline-block;
+  margin-left: 10px;
+}
+
+.status-success {
+  background: #d1fae5;
+  color: var(--success);
+}
+
+.status-error {
+  background: #fee2e2;
+  color: var(--danger);
+}
+
+.status-info {
+  background: #dbeafe;
+  color: var(--secondary);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .container {
+    padding: 20px;
+  }
+  
+  .tabs {
+    flex-direction: column;
+  }
+  
+  .tab {
+    border-bottom: 1px solid #e0e0e0;
+    border-radius: 0;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+  }
+  
+  button {
+    width: 100%;
+  }
+  
+  .flex-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .flex-row label {
+    min-width: auto;
+  }
+}
+</style>
+
+<!-- Ícones -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+<div class="container">
+  <h2><i class="fas fa-database"></i> Execução de Chaincodes - Sollytch</h2>
+  
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab active" data-tab="store">Armazenar</div>
+    <div class="tab" data-tab="query">Consultar</div>
+    <div class="tab" data-tab="update">Atualizar</div>
+  </div>
+  
+  <!-- Tab: Armazenar -->
+  <div class="tab-content active" id="store-tab">
+    <h3><i class="fas fa-save"></i> Armazenar Dados</h3>
+    
+    <div class="form-group">
+      <label>Tipo de Dados</label>
+      <select id="storeType">
+        <option value="store-test">Teste</option>
+        <option value="store-image">Imagem</option>
+        <option value="store-model">Modelo</option>
+        <option value="store-planilha">Planilha</option>
+      </select>
+    </div>
+    
+    <!-- Armazenar Teste -->
+    <div class="store-option" id="store-test-option">
+      <div class="form-group">
+        <label>Test ID</label>
+        <div class="input-wrapper">
+          <span class="prefix">TEST-</span>
+          <input type="text" id="storeTestId" class="input-without-border" placeholder="Número do teste">
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label>Arquivo JSON</label>
+        <input type="file" id="storeTestFile" accept=".json">
+      </div>
+      
+      <button class="primary-btn" onclick="handleStoreTest()">
+        <i class="fas fa-upload"></i> Armazenar Teste
+      </button>
+    </div>
+    
+    <!-- Armazenar Imagem -->
+    <div class="store-option hidden" id="store-image-option">
+      <div class="form-group">
+        <label>Kit ID</label>
+        <input type="text" id="storeImageKitId" placeholder="ID do kit (ex: KIT001)">
+      </div>
+      
+      <div class="form-group">
+        <label>Arquivo de Imagem</label>
+        <input type="file" id="storeImageFile" accept="image/*">
+      </div>
+      
+      <button class="primary-btn" onclick="handleStoreImage()">
+        <i class="fas fa-image"></i> Armazenar Imagem
+      </button>
+    </div>
+    
+    <!-- Armazenar Modelo -->
+    <div class="store-option hidden" id="store-model-option">
+      <div class="form-group">
+        <label>Model Key</label>
+        <select id="modelKey">
+          <option value="acao_recomendada">acao_recomendada</option>
+          <option value="qc_status">qc_status</option>
+          <option value="result_class">result_class</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label>Arquivo do Modelo</label>
+        <input type="file" id="storeModelFile">
+      </div>
+      
+      <button class="primary-btn" onclick="handleStoreModel()">
+        <i class="fas fa-brain"></i> Armazenar Modelo
+      </button>
+    </div>
+    
+    <!-- Armazenar Planilha -->
+    <div class="store-option hidden" id="store-planilha-option">
+      <div class="form-group">
+        <label>Lote</label>
+        <input type="text" id="storePlanilhaLote" placeholder="Código do lote">
+      </div>
+      
+      <div class="form-group">
+        <label>Hash da Planilha</label>
+        <input type="text" id="storePlanilhaHash" placeholder="Hash SHA-256 da planilha">
+      </div>
+      
+      <button class="primary-btn" onclick="handleStorePlanilha()">
+        <i class="fas fa-table"></i> Armazenar Planilha
+      </button>
+    </div>
+  </div>
+  
+  <!-- Tab: Consultar -->
+  <div class="tab-content hidden" id="query-tab">
+    <h3><i class="fas fa-search"></i> Consultar Dados</h3>
+    
+    <div class="form-group">
+      <label>Tipo de Consulta</label>
+      <select id="queryType">
+        <option value="query-test-id">Teste por ID</option>
+        <option value="query-test-lote">Teste por Lote</option>
+        <option value="query-image-hash">Imagem por Hash</option>
+        <option value="query-image-kit">Imagem por Kit</option>
+        <option value="query-planilha-hash">Planilha por Hash</option>
+        <option value="query-planilha-lote">Planilha por Lote</option>
+      </select>
+    </div>
+    
+    <!-- Consulta Teste por ID -->
+    <div class="query-option" id="query-test-id-option">
+      <div class="form-group">
+        <label>Test ID</label>
+        <div class="input-wrapper">
+          <span class="prefix">TEST-</span>
+          <input type="text" id="queryTestId" class="input-without-border" placeholder="Número do teste">
+        </div>
+      </div>
+      
+      <button class="secondary-btn" onclick="handleQueryTestById()">
+        <i class="fas fa-search"></i> Consultar Teste
+      </button>
+    </div>
+    
+    <!-- Consulta Teste por Lote -->
+    <div class="query-option hidden" id="query-test-lote-option">
+      <div class="form-group">
+        <label>Lote</label>
+        <input type="text" id="queryTestLote" placeholder="Código do lote">
+      </div>
+      
+      <button class="secondary-btn" onclick="handleQueryTestByLote()">
+        <i class="fas fa-search"></i> Consultar por Lote
+      </button>
+    </div>
+    
+    <!-- Consulta Imagem por Hash -->
+    <div class="query-option hidden" id="query-image-hash-option">
+      <div class="form-group">
+        <label>Hash da Imagem</label>
+        <input type="text" id="queryImageHash" placeholder="Hash SHA-512 da imagem">
+      </div>
+      
+      <button class="secondary-btn" onclick="handleQueryImageByHash()">
+        <i class="fas fa-search"></i> Consultar Imagem
+      </button>
+    </div>
+    
+    <!-- Consulta Imagem por Kit -->
+    <div class="query-option hidden" id="query-image-kit-option">
+      <div class="form-group">
+        <label>Kit ID</label>
+        <input type="text" id="queryImageKitId" placeholder="ID do kit">
+      </div>
+      
+      <button class="secondary-btn" onclick="handleQueryImageByKit()">
+        <i class="fas fa-search"></i> Consultar por Kit
+      </button>
+    </div>
+    
+    <!-- Consulta Planilha por Hash -->
+    <div class="query-option hidden" id="query-planilha-hash-option">
+      <div class="form-group">
+        <label>Hash da Planilha</label>
+        <input type="text" id="queryPlanilhaHash" placeholder="Hash da planilha">
+      </div>
+      
+      <button class="secondary-btn" onclick="handleQueryPlanilhaByHash()">
+        <i class="fas fa-search"></i> Consultar Planilha
+      </button>
+    </div>
+    
+    <!-- Consulta Planilha por Lote -->
+    <div class="query-option hidden" id="query-planilha-lote-option">
+      <div class="form-group">
+        <label>Lote</label>
+        <input type="text" id="queryPlanilhaLote" placeholder="Código do lote">
+      </div>
+      
+      <button class="secondary-btn" onclick="handleQueryPlanilhaByLote()">
+        <i class="fas fa-search"></i> Consultar por Lote
+      </button>
+    </div>
+    
+    <!-- Resultado da Consulta -->
+    <div id="queryResultContainer" class="hidden">
+      <div class="result-container">
+        <div class="result-header">
+          <div class="result-title">Resultado da Consulta</div>
+          <button class="secondary-btn" onclick="copyResult()">
+            <i class="fas fa-copy"></i> Copiar
+          </button>
+        </div>
+        <div class="result-content" id="queryResult"></div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Tab: Atualizar -->
+  <div class="tab-content hidden" id="update-tab">
+    <h3><i class="fas fa-sync-alt"></i> Atualizar Teste</h3>
+    
+    <div class="form-group">
+      <label>Test ID</label>
+      <div class="input-wrapper">
+        <span class="prefix">TEST-</span>
+        <input type="text" id="updateTestId" class="input-without-border" placeholder="Número do teste">
+      </div>
+    </div>
+    
+    <div class="action-buttons">
+      <button class="primary-btn" onclick="loadTestForUpdate()">
+        <i class="fas fa-download"></i> Carregar Teste
+      </button>
+      
+      <button class="secondary-btn" id="updateTestBtn" onclick="handleUpdateTest()" disabled>
+        <i class="fas fa-save"></i> Atualizar Teste
+      </button>
+    </div>
+    
+    <div class="form-group">
+      <label>Dados do Teste (JSON)</label>
+      <textarea id="updateJsonEditor" rows="12" placeholder='Clique em "Carregar Teste" para preencher automaticamente'></textarea>
+    </div>
+  </div>
+</div>
+
+<script>
+// Elementos das tabs
+const tabs = document.querySelectorAll('.tab');
+const tabContents = document.querySelectorAll('.tab-content');
+
+// Elementos de armazenamento
+const storeType = document.getElementById('storeType');
+const storeOptions = document.querySelectorAll('.store-option');
+
+// Elementos de consulta
+const queryType = document.getElementById('queryType');
+const queryOptions = document.querySelectorAll('.query-option');
+
+// Elementos de resultado
+const queryResultContainer = document.getElementById('queryResultContainer');
+const queryResult = document.getElementById('queryResult');
+
+// Estado
+let loadedTestForUpdate = null;
+let updateTestLoaded = false;
+
+// ============= FUNÇÕES DE NAVEGAÇÃO =============
+
+// Navegação entre tabs
+tabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    const targetTab = tab.getAttribute('data-tab');
+    
+    // Atualizar tabs
+    tabs.forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    
+    // Atualizar conteúdo
+    tabContents.forEach(content => {
+      content.classList.remove('active');
+      content.classList.add('hidden');
+    });
+    
+    document.getElementById(`${targetTab}-tab`).classList.remove('hidden');
+    document.getElementById(`${targetTab}-tab`).classList.add('active');
+  });
+});
+
+// Mostrar/ocultar opções de armazenamento
+storeType.addEventListener('change', () => {
+  const selected = storeType.value;
+  
+  storeOptions.forEach(option => {
+    option.classList.add('hidden');
+  });
+  
+  document.getElementById(`${selected}-option`).classList.remove('hidden');
+});
+
+// Mostrar/ocultar opções de consulta
+queryType.addEventListener('change', () => {
+  const selected = queryType.value;
+  
+  queryOptions.forEach(option => {
+    option.classList.add('hidden');
+  });
+  
+  document.getElementById(`${selected}-option`).classList.remove('hidden');
+  queryResultContainer.classList.add('hidden');
+});
+
+// ============= FUNÇÕES UTILITÁRIAS =============
+
+function showAlert(message, type = 'info') {
+  alert(`${type.toUpperCase()}: ${message}`);
+}
+
+function showResult(data) {
+  const formattedData = typeof data === 'object' 
+    ? JSON.stringify(data, null, 2) 
+    : data;
+  
+  queryResult.textContent = formattedData;
+  queryResultContainer.classList.remove('hidden');
+  
+  // Scroll para o resultado
+  queryResultContainer.scrollIntoView({ behavior: 'smooth' });
+}
+
+function copyResult() {
+  navigator.clipboard.writeText(queryResult.textContent)
+    .then(() => showAlert('Resultado copiado para a área de transferência!', 'success'))
+    .catch(err => showAlert('Erro ao copiar: ' + err.message, 'error'));
+}
+
+async function fetchWithTimeout(url, options, timeout = 30000) {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeout);
+  
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal
+    });
+    clearTimeout(id);
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTP ${response.status}: ${errorText}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    clearTimeout(id);
+    throw error;
+  }
+}
+
+// ============= FUNÇÕES DE ARMAZENAMENTO =============
+
+async function handleStoreTest() {
+  const testId = document.getElementById('storeTestId').value.trim();
+  const fileInput = document.getElementById('storeTestFile');
+  
+  if (!testId) {
+    showAlert('Por favor, insira um Test ID', 'error');
+    return;
+  }
+  
+  if (!fileInput.files[0]) {
+    showAlert('Por favor, selecione um arquivo JSON', 'error');
+    return;
+  }
+  
+  try {
+    const file = fileInput.files[0];
+    const fileContent = await file.text();
+    const data = JSON.parse(fileContent);
+    
+    const response = await fetchWithTimeout('/store/test', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        testID: `TEST-${testId}`,
+        data: data 
+      })
+    });
+    
+    showAlert('Teste armazenado com sucesso!', 'success');
+    console.log('Resposta:', response);
+    
+    // Limpar campos
+    document.getElementById('storeTestId').value = '';
+    fileInput.value = '';
+    
+  } catch (error) {
+    showAlert(`Erro ao armazenar teste: ${error.message}`, 'error');
+    console.error('Erro:', error);
+  }
+}
+
+async function handleStoreImage() {
+  const kitId = document.getElementById('storeImageKitId').value.trim();
+  const fileInput = document.getElementById('storeImageFile');
+  
+  if (!kitId) {
+    showAlert('Por favor, insira um Kit ID', 'error');
+    return;
+  }
+  
+  if (!fileInput.files[0]) {
+    showAlert('Por favor, selecione uma imagem', 'error');
+    return;
+  }
+  
+  try {
+    const formData = new FormData();
+    formData.append('image', fileInput.files[0]);
+    formData.append('kitID', kitId);
+    
+    const response = await fetchWithTimeout('/store/image', {
+      method: 'POST',
+      body: formData
+    });
+    
+    showAlert('Imagem armazenada com sucesso!', 'success');
+    showResult(response);
+    
+    // Limpar campos
+    document.getElementById('storeImageKitId').value = '';
+    fileInput.value = '';
+    
+  } catch (error) {
+    showAlert(`Erro ao armazenar imagem: ${error.message}`, 'error');
+    console.error('Erro:', error);
+  }
+}
+
+async function handleStoreModel() {
+  const modelKey = document.getElementById('modelKey').value;
+  const fileInput = document.getElementById('storeModelFile');
+  
+  if (!fileInput.files[0]) {
+    showAlert('Por favor, selecione um arquivo de modelo', 'error');
+    return;
+  }
+  
+  try {
+    const formData = new FormData();
+    formData.append('model', fileInput.files[0]);
+    formData.append('modelKey', modelKey);
+    
+    const response = await fetchWithTimeout('/store/model', {
+      method: 'POST',
+      body: formData
+    });
+    
+    showAlert('Modelo armazenado com sucesso!', 'success');
+    console.log('Resposta:', response);
+    
+    // Limpar campo
+    fileInput.value = '';
+    
+  } catch (error) {
+    showAlert(`Erro ao armazenar modelo: ${error.message}`, 'error');
+    console.error('Erro:', error);
+  }
+}
+
+async function handleStorePlanilha() {
+  const lote = document.getElementById('storePlanilhaLote').value.trim();
+  const hash = document.getElementById('storePlanilhaHash').value.trim();
+  
+  if (!lote || !hash) {
+    showAlert('Por favor, preencha ambos os campos (lote e hash)', 'error');
+    return;
+  }
+  
+  try {
+    const response = await fetchWithTimeout('/store/planilha', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ lote, planilhaHash: hash })
+    });
+    
+    showAlert('Planilha armazenada com sucesso!', 'success');
+    console.log('Resposta:', response);
+    
+    // Limpar campos
+    document.getElementById('storePlanilhaLote').value = '';
+    document.getElementById('storePlanilhaHash').value = '';
+    
+  } catch (error) {
+    showAlert(`Erro ao armazenar planilha: ${error.message}`, 'error');
+    console.error('Erro:', error);
+  }
+}
+
+// ============= FUNÇÕES DE CONSULTA =============
+
+async function handleQueryTestById() {
+  const testId = document.getElementById('queryTestId').value.trim();
+  
+  if (!testId) {
+    showAlert('Por favor, insira um Test ID', 'error');
+    return;
+  }
+  
+  try {
+    const response = await fetchWithTimeout(`/query/test/id/TEST-${testId}`, {
+      method: 'GET'
+    });
+    
+    showResult(response);
+    
+  } catch (error) {
+    showAlert(`Erro ao consultar teste: ${error.message}`, 'error');
+    console.error('Erro:', error);
+  }
+}
+
+async function handleQueryTestByLote() {
+  const lote = document.getElementById('queryTestLote').value.trim();
+  
+  if (!lote) {
+    showAlert('Por favor, insira um código de lote', 'error');
+    return;
+  }
+  
+  try {
+    const response = await fetchWithTimeout(`/query/test/lote/${lote}`, {
+      method: 'GET'
+    });
+    
+    showResult(response);
+    
+  } catch (error) {
+    showAlert(`Erro ao consultar por lote: ${error.message}`, 'error');
+    console.error('Erro:', error);
+  }
+}
+
+async function handleQueryImageByHash() {
+  const hash = document.getElementById('queryImageHash').value.trim();
+  
+  if (!hash) {
+    showAlert('Por favor, insira um hash de imagem', 'error');
+    return;
+  }
+  
+  try {
+    const response = await fetchWithTimeout(`/query/image/hash/${hash}`, {
+      method: 'GET'
+    });
+    
+    showResult(response);
+    
+  } catch (error) {
+    showAlert(`Erro ao consultar imagem: ${error.message}`, 'error');
+    console.error('Erro:', error);
+  }
+}
+
+async function handleQueryImageByKit() {
+  const kitId = document.getElementById('queryImageKitId').value.trim();
+  
+  if (!kitId) {
+    showAlert('Por favor, insira um Kit ID', 'error');
+    return;
+  }
+  
+  try {
+    // Nota: Esta rota pode precisar ser ajustada dependendo da implementação do backend
+    const response = await fetchWithTimeout(`/query/image/kit/${kitId}`, {
+      method: 'GET'
+    });
+    
+    showResult(response);
+    
+  } catch (error) {
+    showAlert(`Erro ao consultar imagem por kit: ${error.message}`, 'error');
+    console.error('Erro:', error);
+  }
+}
+
+async function handleQueryPlanilhaByHash() {
+  const hash = document.getElementById('queryPlanilhaHash').value.trim();
+  
+  if (!hash) {
+    showAlert('Por favor, insira um hash da planilha', 'error');
+    return;
+  }
+  
+  try {
+    const response = await fetchWithTimeout(`/query/planilha/hash/${hash}`, {
+      method: 'GET'
+    });
+    
+    showResult(response);
+    
+  } catch (error) {
+    showAlert(`Erro ao consultar planilha: ${error.message}`, 'error');
+    console.error('Erro:', error);
+  }
+}
+
+async function handleQueryPlanilhaByLote() {
+  const lote = document.getElementById('queryPlanilhaLote').value.trim();
+  
+  if (!lote) {
+    showAlert('Por favor, insira um código de lote', 'error');
+    return;
+  }
+  
+  try {
+    const response = await fetchWithTimeout(`/query/planilha/lote/${lote}`, {
+      method: 'GET'
+    });
+    
+    showResult(response);
+    
+  } catch (error) {
+    showAlert(`Erro ao consultar planilhas por lote: ${error.message}`, 'error');
+    console.error('Erro:', error);
+  }
+}
+
+// ============= FUNÇÕES DE ATUALIZAÇÃO =============
+
+async function loadTestForUpdate() {
+  const testId = document.getElementById('updateTestId').value.trim();
+  
+  if (!testId) {
+    showAlert('Por favor, insira um Test ID', 'error');
+    return;
+  }
+  
+  try {
+    const response = await fetchWithTimeout(`/query/test/id/TEST-${testId}`, {
+      method: 'GET'
+    });
+    
+    loadedTestForUpdate = response;
+    document.getElementById('updateJsonEditor').value = JSON.stringify(response, null, 2);
+    document.getElementById('updateTestBtn').disabled = false;
+    updateTestLoaded = true;
+    
+    showAlert('Teste carregado com sucesso! Edite os dados e clique em "Atualizar Teste" para salvar.', 'success');
+    
+  } catch (error) {
+    showAlert(`Erro ao carregar teste: ${error.message}`, 'error');
+    console.error('Erro:', error);
+  }
+}
+
+async function handleUpdateTest() {
+  const testId = document.getElementById('updateTestId').value.trim();
+  const jsonEditor = document.getElementById('updateJsonEditor');
+  
+  if (!testId) {
+    showAlert('Por favor, insira um Test ID', 'error');
+    return;
+  }
+  
+  if (!updateTestLoaded) {
+    showAlert('Por favor, primeiro carregue um teste usando o botão "Carregar Teste"', 'error');
+    return;
+  }
+  
+  try {
+    const data = JSON.parse(jsonEditor.value);
+    
+    const response = await fetchWithTimeout('/update/test', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        testID: `TEST-${testId}`,
+        data: data 
+      })
+    });
+    
+    showAlert('Teste atualizado com sucesso!', 'success');
+    console.log('Resposta:', response);
+    
+    updateTestLoaded = false;
+    document.getElementById('updateTestBtn').disabled = true;
+    
+  } catch (error) {
+    showAlert(`Erro ao atualizar teste: ${error.message}`, 'error');
+    console.error('Erro:', error);
+  }
+}
+
+// ============= INICIALIZAÇÃO =============
+
+// Inicializar mostrando a primeira opção de cada tab
+document.addEventListener('DOMContentLoaded', () => {
+  // Mostrar primeira opção de armazenamento
+  storeOptions.forEach(option => {
+    if (option.id !== 'store-test-option') {
+      option.classList.add('hidden');
+    }
+  });
+  
+  // Mostrar primeira opção de consulta
+  queryOptions.forEach(option => {
+    if (option.id !== 'query-test-id-option') {
+      option.classList.add('hidden');
+    }
+  });
+  
+  console.log('Interface Sollytch inicializada com sucesso!');
+});
+</script>
+</body>
+</html>

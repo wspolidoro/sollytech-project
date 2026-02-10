@@ -1,0 +1,2 @@
+lat,lon,expiry_days_left,distance_mm,time_to_migrate_s,sample_volume_uL,sample_pH,sample_turbidity_NTU,sample_temp_C,ambient_T_C,ambient_RH_pct,lighting_lux,tilt_deg,preincubation_time_s,time_since_sampling_min,image_blur_score,tempo_transporte_horas,estimated_concentration_ppb,incerteza_estimativa_ppb,control_line_ok,controle_interno_result,acao_recomendada
+-22.859179,-43.222012,251,10.5,286.3,61.2,6.87,2.3,20.8,21.5,50.9,263.9,0.0,31.8,18.1,0.281,6.56,7.94,1.09,1,2,?
