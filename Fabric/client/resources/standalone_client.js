@@ -1,4 +1,3 @@
-
 const grpc = require('@grpc/grpc-js');
 const readline = require('readline');
 const { connect, hash, signers } = require('@hyperledger/fabric-gateway');
@@ -60,17 +59,17 @@ function preprocessForPrediction(testData) {
         'time_since_sampling_min', 'tempo_transporte_horas', 'estimated_concentration_ppb',
         'incerteza_estimativa_ppb'
     ];
-    
+
     const categoricalFeatures = ['control_line_ok', 'controle_interno_result'];
     const allFeatures = [...numericFeatures, ...categoricalFeatures];
-    
+
     const processedData = {...testData};
-    
+
     if (typeof processedData.control_line_ok === 'boolean') {
         processedData.control_line_ok = processedData.control_line_ok ? 1 : 0;
         console.log(`Booleano convertido: control_line_ok → ${processedData.control_line_ok}`);
     }
-    
+
     if (processedData.controle_interno_result in controleInternoEncoder) {
         processedData.controle_interno_result = controleInternoEncoder[processedData.controle_interno_result];
         console.log(`Codificada 'controle_interno_result': ${testData.controle_interno_result} → ${processedData.controle_interno_result}`);
@@ -78,18 +77,18 @@ function preprocessForPrediction(testData) {
         processedData.controle_interno_result = 0; // valor padrão
         console.log(`Valor desconhecido 'controle_interno_result': ${testData.controle_interno_result} → 0`);
     }
-    
+
     allFeatures.forEach(feature => {
         if (processedData[feature] === null || processedData[feature] === undefined) {
             processedData[feature] = 0;
             console.log(`Preenchido valor nulo: ${feature} → 0`);
         }
     });
-    
+
     if (processedData.image_blur_score === null || processedData.image_blur_score === undefined) {
         processedData.image_blur_score = 0.0;
     }
-    
+
     const csvData = [
         processedData.lat,
         processedData.lon,
@@ -113,10 +112,10 @@ function preprocessForPrediction(testData) {
         processedData.control_line_ok,
         processedData.controle_interno_result
     ].join(',');
-    
+
     console.log("Dados pré-processados com sucesso");
     console.log(`CSV gerado: ${csvData}`);
-    
+
     return csvData;
 }
 
