@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Escolher Target</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="logo">🧬 Sollychain</div>
+    <nav class="menu">
+      <a href="/">Upload CSV</a>
+      <a class="active">Target</a>
+    </nav>
+  </aside>
+
+  <main class="content">
+    <h1>Escolher coluna target</h1>
+    <p class="subtitle">
+      Defina qual atributo será usado como classe do modelo
+    </p>
+
+    <div class="card">
+      <form action="/train" method="post">
+        <input type="hidden" name="csv" value="{{.CSVName}}">
+
+        <select name="target" required>
+          {{range .Columns}}
+            <option value="{{.}}">{{.}}</option>
+          {{end}}
+        </select>
+
+        <button>Treinar Modelo</button>
+      </form>
+    </div>
+  </main>
+
+</div>
+</body>
+</html>

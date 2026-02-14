@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Resultados do Treinamento</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="logo">🧬 Sollychain</div>
+
+        <nav class="menu">
+            <a href="/">Upload CSV</a>
+            <a class="active">Resultados</a>
+        </nav>
+
+    </aside>
+
+    <!-- CONTEÚDO (igual target.html) -->
+    <main class="content">
+
+        <h1>Resultados do Treinamento</h1>
+
+        <p class="subtitle">
+            Avaliação dos modelos treinados com o dataset enviado
+        </p>
+
+        {{if .Error}}
+        <div class="card">
+            <h2>{{.Error}}</h2>
+        </div>
+        {{end}}
+
+        {{range .Results}}
+
+        {{$labels := .Labels}}
+
+        <div class="card">
+
+            <h2>{{.ModelName}}</h2>
+
+            <div class="accuracy-box">
+                <strong>Acurácia:</strong>
+                <span>{{printf "%.4f" .Accuracy}}</span>
+            </div>
+
+            <!-- MATRIZ -->
+            <h3>Matriz de Confusão</h3>
+
+            <table class="matrix-table">
+
+                <thead>
+                    <tr>
+                        <th>Real \ Prev</th>
+                        {{range $labels}}
+                        <th>{{.}}</th>
+                        {{end}}
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {{range $i, $row := .Matrix}}
+                    <tr>
+
+                        <td><strong>{{index $labels $i}}</strong></td>
+
+                        {{range $row}}
+                        <td>{{.}}</td>
+                        {{end}}
+
+                    </tr>
+                    {{end}}
+
+                </tbody>
+
+            </table>
+
+            <!-- MÉTRICAS -->
+            <h3>Métricas por Classe</h3>
+
+            <table class="metrics-table">
+
+                <thead>
+                    <tr>
+                        <th>Classe</th>
+                        <th>Precisão</th>
+                        <th>Recall</th>
+                        <th>F1</th>
+                        <th>TP</th>
+                        <th>FP</th>
+                        <th>FN</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {{range .Metrics}}
+                    <tr>
+                        <td>{{.Class}}</td>
+                        <td>{{printf "%.4f" .Precision}}</td>
+                        <td>{{printf "%.4f" .Recall}}</td>
+                        <td>{{printf "%.4f" .F1}}</td>
+                        <td>{{.TP}}</td>
+                        <td>{{.FP}}</td>
+                        <td>{{.FN}}</td>
+                    </tr>
+                    {{end}}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {{end}}
+
+    </main>
+
+</div>
+
+</body>
+</html>

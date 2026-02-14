@@ -1,0 +1,138 @@
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Inter, Arial, Helvetica, sans-serif;
+  background: #0b0f1a;
+  color: #e5e7eb;
+}
+
+/* LAYOUT */
+.app {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 260px;
+  background: linear-gradient(180deg, #050814, #0b1022);
+  padding: 24px 18px;
+  display: flex;
+  flex-direction: column;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 22px;
+  font-weight: bold;
+  color: #9effa8;
+  margin-bottom: 40px;
+}
+
+.menu a {
+  display: block;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  border-radius: 10px;
+  color: #c7cbe0;
+  text-decoration: none;
+  transition: 0.2s;
+}
+
+.menu a:hover,
+.menu a.active {
+  background: rgba(158, 255, 168, 0.15);
+  color: #9effa8;
+}
+
+/* CONTENT */
+.content {
+  flex: 1;
+  padding: 40px;
+}
+
+h1 {
+  font-size: 30px;
+  margin-bottom: 6px;
+}
+
+.subtitle {
+  color: #9ca3af;
+  margin-bottom: 30px;
+}
+
+/* CARD */
+.card {
+  background: linear-gradient(180deg, #0f172a, #020617);
+  border-radius: 18px;
+  padding: 26px;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.05);
+  margin-bottom: 30px;
+}
+
+/* FORM */
+input, select {
+  width: 100%;
+  padding: 14px;
+  background: #020617;
+  border: 1px solid #1e293b;
+  border-radius: 10px;
+  color: white;
+  margin-top: 14px;
+}
+
+button {
+  margin-top: 22px;
+  width: 100%;
+  padding: 14px;
+  background: #9effa8;
+  color: #052e16;
+  font-weight: bold;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+button:hover {
+  filter: brightness(0.9);
+}
+
+/* TABLE */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+th, td {
+  padding: 12px;
+  border-bottom: 1px solid #1e293b;
+  text-align: center;
+}
+
+th {
+  color: #9effa8;
+}
+
+/* DOWNLOAD */
+.download {
+  display: inline-block;
+  margin-top: 30px;
+  background: #9effa8;
+  color: #052e16;
+  padding: 14px 22px;
+  border-radius: 12px;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.download:hover {
+  filter: brightness(0.9);
+}

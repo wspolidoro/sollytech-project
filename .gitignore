@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# model_api files
+model_api/uploads/
+model_api/models/
+*.model
+*.csv

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Upload CSV</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="logo">
+      🧬 Sollychain
+    </div>
+
+    <nav class="menu">
+      <a class="active" href="/">Upload</a>
+      <a href="#">Treinamento</a>
+      <a href="#">Resultados</a>
+    </nav>
+  </aside>
+
+  <main class="content">
+    <h1>Upload do CSV</h1>
+    <p class="subtitle">
+      Envie um dataset para treinamento do modelo
+    </p>
+
+    <div class="card">
+      <form action="/upload" method="post" enctype="multipart/form-data">
+        <input type="file" name="csvfile" required>
+        <button>Enviar CSV</button>
+      </form>
+    </div>
+  </main>
+
+</div>
+</body>
+</html>
