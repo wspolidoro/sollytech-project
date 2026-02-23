@@ -382,6 +382,22 @@ async function editTest(contract) {
     console.log('teste atualizado com sucesso');
 }
 
+async function models(contract,key,path) {
+    // Lê o arquivo como binário
+    const modelBuffer = await fs.readFile(path);
+
+    // Converte para base64
+    const modelBase64 = modelBuffer.toString('base64');
+
+    await contract.submitTransaction(
+        'StoreModel',
+        key,
+        modelBase64
+    );
+
+    console.log(`modelo "${key}" armazenado com sucesso no ledger`);
+}
+
 async function storeModel(contract) {
     const modelKey = (await askQuestion(
         'modelKey (acao_recomendada | result_class | qc_status): '
@@ -442,10 +458,11 @@ async function main() {
         const sollytchImageContract = network.getContract("sollytch-image");
         const sollytchChainContract = network.getContract("sollytch-chain");
 
-        const action = (await askQuestion(
-            'acao (store_test | query_test | edit_test | storemodel | store_image | query_image | store_planilha | query_planilha): '
-        )).trim().toLowerCase();
-
+        // const action = (await askQuestion(
+        //     'acao (store_test | query_test | edit_test | storemodel | store_image | query_image | store_planilha | query_planilha): '
+        // )).trim().toLowerCase();
+        // const action = "store_test"
+        const action = "models"
         if (action === 'store_test') {
             await invoke(sollytchChainContract);
 
@@ -466,6 +483,11 @@ async function main() {
 
         } else if (action === 'edit_test') {
             await editTest(sollytchChainContract);
+
+        } else if (action === 'models') {
+            await models(sollytchChainContract, 'qc_status', 'examples/qc_status');
+            await models(sollytchChainContract, 'result_class', 'examples/result_class');
+            await models(sollytchChainContract, 'acao_recomendada', 'examples/acao_recomendada');
 
         } else if (action === 'store_image') {
             // const imageID = (await askQuestion('imageID: ')).trim();
