@@ -12,6 +12,7 @@ ccapi/vendor/*
 cc-tools-demo.tar.gz
 package-lock.json
 client/uploads/
+client/benchmarks/*
 
 # Go dependencies - NUNCA versionar vendor
 vendor/
