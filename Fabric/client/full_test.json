@@ -35,5 +35,8 @@
   "tempo_transporte_horas": 9.76,
   "condicao_transporte": "protegido",
   "estimated_concentration_ppb": 31.76,
-  "incerteza_estimativa_ppb": 2.82
+  "incerteza_estimativa_ppb": 2.82,
+  "acao_recomendada": "liberar",
+  "result_class": "positive",
+  "qc_status": "ok"
 }

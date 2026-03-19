@@ -496,6 +496,10 @@ func predictFromCSV(model *trees.ID3DecisionTree, target string, csvRow string) 
 	6) Cria uma chave composta para indexação por lote
 */
 func (s *SmartContract) StoreTest(ctx contractapi.TransactionContextInterface, testID string, jsonStr string, predictStr string) error {
+<<<<<<< HEAD
+=======
+	start := time.Now()
+>>>>>>> 0ca5e186a99edbc44ac93ef8343b4947887e3ee4
 	// Verifica se já existe um teste com o mesmo ID
 	existing, err := ctx.GetStub().GetState(testID)
 	if err != nil {
@@ -587,6 +591,13 @@ func (s *SmartContract) StoreTest(ctx contractapi.TransactionContextInterface, t
 	}
 
 	// Armazena o indice no ledger
+<<<<<<< HEAD
+=======
+	elapsed := time.Since(start).Seconds()
+	fmt.Printf("BENCHMARK_METRIC: { \"function\": \"StoreTest\", \"testId\": \"%s\", \"executionTime\": %.6f, \"timestamp\": \"%s\" }\n",
+		testID, elapsed, time.Now().Format(time.RFC3339Nano))
+
+>>>>>>> 0ca5e186a99edbc44ac93ef8343b4947887e3ee4
 	return ctx.GetStub().PutState(indexKey, []byte{0x00})
 }
 
@@ -675,6 +686,10 @@ func (s *SmartContract) GetTestsByLote(ctx contractapi.TransactionContextInterfa
 	com os modelos de Machine Learning, apenas atualiza o teste com a string json recebida
 */
 func (s *SmartContract) UpdateTest(ctx contractapi.TransactionContextInterface, testID string, fullJSON string) error {
+<<<<<<< HEAD
+=======
+	start := time.Now()
+>>>>>>> 0ca5e186a99edbc44ac93ef8343b4947887e3ee4
 	// Busca o teste existente no ledger
 	existingBytes, err := ctx.GetStub().GetState(testID)
 	if err != nil {
@@ -748,6 +763,14 @@ func (s *SmartContract) UpdateTest(ctx contractapi.TransactionContextInterface, 
 		return err
 	}
 
+<<<<<<< HEAD
+=======
+	elapsed := time.Since(start).Seconds()
+
+	fmt.Printf("BENCHMARK_METRIC: { \"function\": \"UpdateTest\", \"testId\": \"%s\", \"executionTime\": %.6f, \"timestamp\": \"%s\" }\n", 
+        testID, elapsed, time.Now().Format(time.RFC3339Nano))
+
+>>>>>>> 0ca5e186a99edbc44ac93ef8343b4947887e3ee4
 	// Persiste o novo estado do teste no ledger
 	return ctx.GetStub().PutState(testID, bytes)
 }

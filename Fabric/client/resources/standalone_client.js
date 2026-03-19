@@ -165,6 +165,7 @@ async function storeTest(jsonStr) {
         console.log(`Teste ${testID} armazenado com sucesso`)
     } catch (err) {
         console.error(`Falha ao armazenar teste ${testID}: ${err}`)
+        throw err
     }
 }
 
@@ -178,6 +179,7 @@ async function updateTest(jsonStr, testID) {
         console.log(`teste ${testID} atualizado com sucesso`);
     }catch(err){
         console.error(`Falha ao atualizar teste ${testID}: ${err}`)
+        throw err
     }
 }
 
