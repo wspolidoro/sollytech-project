@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"encoding/csv"
 	"fmt"
 	"html/template"
@@ -10,11 +11,13 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/sjwhitworth/golearn/base"
 	"github.com/sjwhitworth/golearn/evaluation"
+	"github.com/sjwhitworth/golearn/knn"
 	"github.com/sjwhitworth/golearn/trees"
 )
 
@@ -61,6 +64,7 @@ Campos:
 - Labels: lista ordenada das classes.
 - Matrix: matriz de confusão em formato bidimensional.
 - Metrics: métricas detalhadas por classe.
+- ModelFile: nome do arquivo do modelo salvo.
 */
 type ModelResult struct {
 	ModelName string
@@ -68,6 +72,7 @@ type ModelResult struct {
 	Labels    []string
 	Matrix    [][]int
 	Metrics   []ClassMetrics
+	ModelFile string
 }
 
 /*
@@ -82,6 +87,49 @@ type ResultPage struct {
 	Error   string
 }
 
+// Adicione/atualize estas structs no início do arquivo
+
+/*
+TargetPage representa o objeto enviado ao template HTML da página de configuração.
+
+Campos:
+- CSVName: nome do arquivo CSV carregado.
+- Columns: lista de colunas do CSV.
+- Models: lista de modelos disponíveis para seleção.
+*/
+type TargetPage struct {
+	CSVName string
+	Columns []string
+	Models  []ModelOption
+}
+
+/*
+TrainConfig representa a configuração completa para treinamento.
+*/
+type TrainConfig struct {
+	CSVName        string
+	Features       []string
+	TargetColumns  []string
+	PredictTarget  string
+	SelectedModels []string
+}
+
+/*
+ModelOption representa uma opção de modelo na interface.
+
+Campos:
+- Name: nome do modelo.
+- ID: identificador único para o checkbox.
+- Checked: se o modelo vem selecionado por padrão.
+- HasConfig: se o modelo tem configurações adicionais.
+*/
+type ModelOption struct {
+	Name      string
+	ID        string
+	Checked   bool
+	HasConfig bool
+}
+
 /*
 ModelTrainer abstrai a definição de um algoritmo de treinamento.
 
@@ -89,8 +137,10 @@ Permite registrar múltiplos modelos de forma genérica através de uma função
 de treinamento associada ao nome do modelo.
 */
 type ModelTrainer struct {
-	Name  string
-	Train func(base.FixedDataGrid) (base.Classifier, error)
+	Name       string
+	Train      func(base.FixedDataGrid) (base.Classifier, error)
+	HasConfig  bool
+	ConfigHTML string
 }
 
 /*
@@ -112,6 +162,7 @@ func main() {
 	http.HandleFunc("/", uploadPage)
 	http.HandleFunc("/upload", uploadCSV)
 	http.HandleFunc("/train", trainModel)
+	http.HandleFunc("/download", downloadModel)
 
 	// Servidor de arquivos estáticos (CSS, JS, imagens).
 	http.Handle("/static/", http.StripPrefix("/static/",
@@ -132,8 +183,7 @@ func uploadPage(w http.ResponseWriter, r *http.Request) {
 
 /*
 uploadCSV recebe o arquivo CSV enviado pelo usuário,
-armazena no servidor e extrai os nomes das colunas
-para permitir a escolha da variável target.
+armazena no servidor e extrai os nomes das colunas.
 */
 func uploadCSV(w http.ResponseWriter, r *http.Request) {
 
@@ -161,13 +211,21 @@ func uploadCSV(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Lista de modelos disponíveis (mantida aqui)
+	models := []ModelOption{
+		{Name: "ID3 Decision Tree", ID: "model_id3", Checked: true, HasConfig: false},
+		{Name: "Random Tree", ID: "model_random", Checked: false, HasConfig: false},
+		{Name: "KNN (Manhattan, k=7)", ID: "model_knn_manhattan_7", Checked: true, HasConfig: true},
+		{Name: "KNN (Manhattan, k=5)", ID: "model_knn_manhattan_5", Checked: false, HasConfig: true},
+		{Name: "KNN (Manhattan, k=9)", ID: "model_knn_manhattan_9", Checked: false, HasConfig: true},
+		{Name: "KNN (Euclidean, k=7)", ID: "model_knn_euclidean_7", Checked: false, HasConfig: true},
+	}
+
 	// Estrutura enviada ao template.
-	data := struct {
-		CSVName string
-		Columns []string
-	}{
-		filename,
-		headers,
+	data := TargetPage{
+		CSVName: filename,
+		Columns: headers,
+		Models:  models,
 	}
 
 	templates.ExecuteTemplate(w, "target.html", data)
@@ -179,43 +237,359 @@ trainModel executa todo o pipeline de treinamento de modelos.
 Fluxo:
 1. Recebe parâmetros do formulário.
 2. Carrega dataset.
-3. Define variável target.
-4. Divide dados em treino e teste.
-5. Treina múltiplos modelos.
-6. Avalia desempenho.
-7. Salva modelos.
-8. Renderiza página de resultados.
+3. Filtra features e targets.
+4. Codifica variáveis categóricas em números.
+5. Define variável target para predição.
+6. Divide dados em treino e teste.
+7. Treina múltiplos modelos.
+8. Avalia desempenho.
+9. Salva modelos.
+10. Renderiza página de resultados.
 */
 func trainModel(w http.ResponseWriter, r *http.Request) {
 
-	csvName := r.FormValue("csv")
-	target := r.FormValue("target")
-
-	log.Println("CSV:", csvName)
-	log.Println("Target:", target)
-
-	csvPath := filepath.Join("uploads", csvName)
-
-	// Conversão do CSV em estrutura de instâncias do GoLearn.
-	data, err := base.ParseCSVToInstances(csvPath, true)
+	// Parse do formulário
+	err := r.ParseForm()
 	if err != nil {
-		http.Error(w, "Erro ao carregar CSV", http.StatusInternalServerError)
+		http.Error(w, "Erro ao processar formulário", http.StatusBadRequest)
 		return
 	}
 
-	// Definição do atributo de classe.
+	csvName := r.FormValue("csv")
+	features := r.Form["features"]                 // Colunas selecionadas como features
+	targetColumns := r.Form["target_columns"]      // Todas as colunas target
+	predictTarget := r.FormValue("predict_target") // Coluna target para predição
+	selectedModels := r.Form["models"]             // Modelos selecionados
+
+	// Validações
+	if len(features) == 0 {
+		http.Error(w, "Selecione pelo menos uma feature", http.StatusBadRequest)
+		return
+	}
+	if len(targetColumns) == 0 {
+		http.Error(w, "Selecione pelo menos uma coluna target", http.StatusBadRequest)
+		return
+	}
+	if predictTarget == "" {
+		http.Error(w, "Selecione qual target deseja prever", http.StatusBadRequest)
+		return
+	}
+
+	// Verifica se o target de predição está na lista de targets
+	targetValid := false
+	for _, target := range targetColumns {
+		if target == predictTarget {
+			targetValid = true
+			break
+		}
+	}
+	if !targetValid {
+		http.Error(w, "O target para predição deve estar entre as colunas target selecionadas", http.StatusBadRequest)
+		return
+	}
+
+	log.Println("CSV:", csvName)
+	log.Println("Features:", features)
+	log.Println("Target Columns:", targetColumns)
+	log.Println("Predict Target:", predictTarget)
+	log.Println("Modelos selecionados:", selectedModels)
+
+	csvPath := filepath.Join("uploads", csvName)
+
+	// CONVERSÃO DO CSV - AGORA COM DETECÇÃO DE SEPARADOR, CONVERSÃO DE VÍRGULAS DECIMAIS E CODIFICAÇÃO CATEGÓRICA
+
+	// Abre o arquivo CSV original
+	originalFile, err := os.Open(csvPath)
+	if err != nil {
+		http.Error(w, "Erro ao abrir CSV original", http.StatusInternalServerError)
+		return
+	}
+	defer originalFile.Close()
+
+	// Detecta o separador do arquivo original
+	reader := bufio.NewReader(originalFile)
+	firstLine, err := reader.ReadString('\n')
+	if err != nil {
+		http.Error(w, "Erro ao ler CSV original", http.StatusInternalServerError)
+		return
+	}
+
+	// Define o separador baseado na primeira linha
+	var separator rune
+	if strings.Contains(firstLine, ";") {
+		separator = ';'
+		log.Println("Separador detectado: ponto e vírgula (;)")
+	} else {
+		separator = ','
+		log.Println("Separador detectado: vírgula (,)")
+	}
+
+	// Volta ao início do arquivo
+	originalFile.Seek(0, 0)
+
+	// Cria um leitor CSV com o separador correto
+	csvReader := csv.NewReader(originalFile)
+	csvReader.Comma = separator
+	csvReader.LazyQuotes = true
+	csvReader.TrimLeadingSpace = true
+
+	// Lê o cabeçalho
+	header, err := csvReader.Read()
+	if err != nil {
+		http.Error(w, "Erro ao ler cabeçalho do CSV", http.StatusInternalServerError)
+		return
+	}
+
+	// CRÍTICO: Remove as colunas target (exceto o target de predição) das features
+	// Isso evita data leakage
+	cleanFeatures := make([]string, 0)
+	for _, feat := range features {
+		// Se a feature é uma coluna target MAS NÃO É o target de predição, NÃO incluir
+		isTarget := false
+		for _, target := range targetColumns {
+			if feat == target && feat != predictTarget {
+				isTarget = true
+				log.Printf("Removendo target '%s' das features (data leakage prevention)", feat)
+				break
+			}
+		}
+		if !isTarget {
+			cleanFeatures = append(cleanFeatures, feat)
+		}
+	}
+
+	// Cria um mapa das colunas a manter (cleanFeatures + target de predição)
+	keepSet := make(map[string]bool)
+	for _, feat := range cleanFeatures {
+		keepSet[feat] = true
+	}
+	keepSet[predictTarget] = true
+
+	// Mapeia índices das colunas a manter
+	indicesToKeep := []int{}
+	newHeader := []string{}
+	for i, colName := range header {
+		if keepSet[colName] {
+			indicesToKeep = append(indicesToKeep, i)
+			newHeader = append(newHeader, colName)
+		}
+	}
+
+	// Cria um arquivo temporário para o CSV filtrado (sempre com vírgula como separador)
+	tempCSV, err := os.CreateTemp("uploads", "temp_*.csv")
+	if err != nil {
+		http.Error(w, "Erro ao criar arquivo temporário", http.StatusInternalServerError)
+		return
+	}
+	tempPath := tempCSV.Name()
+	defer tempCSV.Close()
+	defer os.Remove(tempPath) // Limpa o arquivo temporário depois
+
+	// Cria um escritor CSV com vírgula como separador (formato que o GoLearn espera)
+	csvWriter := csv.NewWriter(tempCSV)
+	csvWriter.Comma = ',' // Força vírgula como separador na saída
+	defer csvWriter.Flush()
+
+	// Escreve o novo cabeçalho
+	if err := csvWriter.Write(newHeader); err != nil {
+		http.Error(w, "Erro ao escrever cabeçalho", http.StatusInternalServerError)
+		return
+	}
+
+	// MAPAS PARA CODIFICAÇÃO DE VARIÁVEIS CATEGÓRICAS
+	// Vamos criar um mapa para cada coluna categórica que queremos codificar
+	categoricalMaps := make(map[string]map[string]int)
+
+	// Lista de colunas categóricas que queremos codificar
+	// Baseado no seu dataset, estas são colunas com valores textuais fixos
+	categoricalColumns := map[string]bool{
+		"control_line_ok":         true,  // TRUE/FALSE
+		"storage_condition":       true,  // ambiente, refrigerado, térmico, protegido
+		"prefilter_used":          true,  // TRUE/FALSE
+		"image_taken":             true,  // TRUE/FALSE
+		"controle_interno_result": true,  // ok, falha_controle_negativo, falha_controle_positivo
+		"cadeia_frio_status":      true,  // TRUE/FALSE
+		"condicao_transporte":     true,  // refrigerado, ambiente, protegido
+		"acao_recomendada":        false, // retestar_e_confirmar_amostragem, liberar, bloquear_lote_e_confirmar_laboratorio, retestar
+		"result_class":            false, // negative, positive, invalid
+		"qc_status":               false, // ok, warn, fail
+		"matrix_type":             true,  // efluente, agua, extrato_foliar, extrato_solo, calda
+		"operator_id":             true,  // OP01, OP02, etc.
+		"produto_id":              true,  // SOJA_GRÃO, HORTI_TOMATE, CAFÉ_ARABICA, etc.
+		"kit_calibration_id":      true,  // CAL1001, CAL1002, etc.
+		"device_fw_version":       true,  // 1.0.3, 1.1.0, etc.
+		"geo_hash":                true,  // 75cmbj, 75cmbq, etc.
+	}
+
+	// Inicializa os mapas para cada coluna categórica
+	for colName := range categoricalColumns {
+		categoricalMaps[colName] = make(map[string]int)
+	}
+
+	// Primeiro, vamos ler todo o arquivo para construir os mapas de codificação
+	// Precisamos resetar o leitor
+	originalFile.Seek(0, 0)
+	csvReader = csv.NewReader(originalFile)
+	csvReader.Comma = separator
+	csvReader.LazyQuotes = true
+	csvReader.TrimLeadingSpace = true
+
+	// Pula o cabeçalho
+	_, err = csvReader.Read()
+	if err != nil {
+		http.Error(w, "Erro ao ler cabeçalho", http.StatusInternalServerError)
+		return
+	}
+
+	// Primeira passagem: constrói os mapas de codificação
+	for {
+		record, err := csvReader.Read()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			http.Error(w, "Erro ao ler linha do CSV para codificação", http.StatusInternalServerError)
+			return
+		}
+
+		// Para cada coluna que estamos mantendo
+		for j, idx := range indicesToKeep {
+			colName := newHeader[j]
+
+			// Se é uma coluna categórica, adiciona ao mapa
+			if categoricalColumns[colName] {
+				value := record[idx]
+				value = strings.TrimSpace(value)
+
+				// Se o valor não está no mapa, adiciona com um novo ID
+				if _, exists := categoricalMaps[colName][value]; !exists && value != "" {
+					categoricalMaps[colName][value] = len(categoricalMaps[colName])
+				}
+			}
+		}
+	}
+
+	// Log dos mapas criados
+	for colName, mapping := range categoricalMaps {
+		log.Printf("Coluna categórica '%s' mapeada: %d valores únicos", colName, len(mapping))
+		for valor, codigo := range mapping {
+			log.Printf("  %s -> %d", valor, codigo)
+		}
+	}
+
+	// Segunda passagem: processa as linhas e aplica a codificação
+	// Reseta o leitor novamente
+	originalFile.Seek(0, 0)
+	csvReader = csv.NewReader(originalFile)
+	csvReader.Comma = separator
+	csvReader.LazyQuotes = true
+	csvReader.TrimLeadingSpace = true
+
+	// Pula o cabeçalho
+	_, err = csvReader.Read()
+	if err != nil {
+		http.Error(w, "Erro ao ler cabeçalho", http.StatusInternalServerError)
+		return
+	}
+
+	// Processa cada linha do arquivo original
+	lineCount := 0
+	for {
+		record, err := csvReader.Read()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			http.Error(w, "Erro ao ler linha do CSV", http.StatusInternalServerError)
+			return
+		}
+		lineCount++
+
+		// Cria nova linha apenas com as colunas selecionadas
+		newRecord := make([]string, len(indicesToKeep))
+		for j, idx := range indicesToKeep {
+			colName := newHeader[j]
+			value := record[idx]
+			value = strings.TrimSpace(value)
+
+			// Se é uma coluna categórica, aplica a codificação
+			if categoricalColumns[colName] {
+				if code, exists := categoricalMaps[colName][value]; exists {
+					// Converte para string (o GoLearn espera string)
+					newRecord[j] = fmt.Sprintf("%d", code)
+					log.Printf("Linha %d - Codificando '%s': '%s' -> %d", lineCount, colName, value, code)
+				} else {
+					// Valor não encontrado no mapa (provavelmente vazio)
+					newRecord[j] = "-1" // Código para valor desconhecido
+				}
+			} else {
+				// Coluna numérica - faz a conversão de vírgula decimal
+				if strings.Contains(value, ",") && !strings.Contains(value, ";") {
+					// Verifica se é um número (formato brasileiro)
+					// Remove espaços
+					value = strings.TrimSpace(value)
+
+					// Se tiver padrão como "1.234,56", remove os pontos primeiro
+					if strings.Contains(value, ".") && strings.Contains(value, ",") {
+						value = strings.ReplaceAll(value, ".", "")
+					}
+
+					// Converte a vírgula decimal para ponto
+					value = strings.Replace(value, ",", ".", 1)
+				}
+				newRecord[j] = value
+			}
+		}
+
+		if err := csvWriter.Write(newRecord); err != nil {
+			http.Error(w, "Erro ao escrever linha", http.StatusInternalServerError)
+			return
+		}
+	}
+
+	csvWriter.Flush()
+	tempCSV.Close()
+
+	log.Printf("Arquivo temporário criado com %d linhas e valores convertidos: %s", lineCount, tempPath)
+
+	// Agora carrega o CSV filtrado usando o GoLearn
+	data, err := base.ParseCSVToInstances(tempPath, true)
+	if err != nil {
+		http.Error(w, "Erro ao carregar dados filtrados: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Verifica se o target de predição está presente
 	var found bool
 	for _, attr := range data.AllAttributes() {
-		if attr.GetName() == target {
+		if attr.GetName() == predictTarget {
 			data.AddClassAttribute(attr)
 			found = true
+			log.Printf("Target '%s' configurado como classe", predictTarget)
 			break
 		}
 	}
 
 	if !found {
-		http.Error(w, "Coluna target não encontrada", http.StatusBadRequest)
+		http.Error(w, "Target para predição não encontrado após filtro", http.StatusBadRequest)
 		return
+	}
+
+	// Mostra informações sobre os atributos
+	log.Println("Atributos no dataset filtrado:")
+	for _, attr := range data.AllAttributes() {
+		isClass := false
+		for _, classAttr := range data.AllClassAttributes() {
+			if attr == classAttr {
+				isClass = true
+				break
+			}
+		}
+		if isClass {
+			log.Printf("  - %s (CLASSE)", attr.GetName())
+		} else {
+			log.Printf("  - %s (feature)", attr.GetName())
+		}
 	}
 
 	// Divisão em conjunto de treino e teste.
@@ -227,13 +601,10 @@ func trainModel(w http.ResponseWriter, r *http.Request) {
 		numAttrs = 1
 	}
 
-	log.Println("Número de atributos:", numAttrs)
+	log.Println("Número de atributos preditores:", numAttrs)
 
-	/*
-		Definição dos modelos que serão treinados.
-		A estrutura permite fácil extensão para novos algoritmos.
-	*/
-	models := []ModelTrainer{
+	// Definição dos modelos que serão treinados.
+	allModels := []ModelTrainer{
 		{
 			Name: "ID3 Decision Tree",
 			Train: func(train base.FixedDataGrid) (base.Classifier, error) {
@@ -257,12 +628,65 @@ func trainModel(w http.ResponseWriter, r *http.Request) {
 				return m, err
 			},
 		},
+		{
+			Name: "KNN (Manhattan, k=5)",
+			Train: func(train base.FixedDataGrid) (base.Classifier, error) {
+				m := knn.NewKnnClassifier("manhattan", "linear", 5)
+				err := m.Fit(train)
+				return m, err
+			},
+		},
+		{
+			Name: "KNN (Manhattan, k=7)",
+			Train: func(train base.FixedDataGrid) (base.Classifier, error) {
+				m := knn.NewKnnClassifier("manhattan", "linear", 7)
+				err := m.Fit(train)
+				return m, err
+			},
+		},
+		{
+			Name: "KNN (Manhattan, k=9)",
+			Train: func(train base.FixedDataGrid) (base.Classifier, error) {
+				m := knn.NewKnnClassifier("manhattan", "linear", 9)
+				err := m.Fit(train)
+				return m, err
+			},
+		},
+		{
+			Name: "KNN (Euclidean, k=7)",
+			Train: func(train base.FixedDataGrid) (base.Classifier, error) {
+				m := knn.NewKnnClassifier("euclidean", "linear", 7)
+				err := m.Fit(train)
+				return m, err
+			},
+		},
+	}
+
+	// Mapeamento de IDs para nomes de modelos
+	modelIDToName := map[string]string{
+		"model_id3":             "ID3 Decision Tree",
+		"model_random":          "Random Tree",
+		"model_knn_manhattan_5": "KNN (Manhattan, k=5)",
+		"model_knn_manhattan_7": "KNN (Manhattan, k=7)",
+		"model_knn_manhattan_9": "KNN (Manhattan, k=9)",
+		"model_knn_euclidean_7": "KNN (Euclidean, k=7)",
+	}
+
+	// Filtra apenas os modelos selecionados
+	var modelsToTrain []ModelTrainer
+	for _, trainer := range allModels {
+		for _, selectedID := range selectedModels {
+			if modelName, exists := modelIDToName[selectedID]; exists && modelName == trainer.Name {
+				modelsToTrain = append(modelsToTrain, trainer)
+				break
+			}
+		}
 	}
 
 	var results []ModelResult
 
 	// Treinamento iterativo dos modelos.
-	for _, trainer := range models {
+	for _, trainer := range modelsToTrain {
 
 		log.Println("Treinando:", trainer.Name)
 
@@ -290,14 +714,24 @@ func trainModel(w http.ResponseWriter, r *http.Request) {
 		metrics, accuracy := computeMetrics(confusion, labels)
 
 		// Nome do arquivo de modelo salvo.
+		modelNameSafe := strings.ReplaceAll(strings.ReplaceAll(trainer.Name, " ", "_"), ",", "")
+		modelNameSafe = strings.ReplaceAll(modelNameSafe, "(", "")
+		modelNameSafe = strings.ReplaceAll(modelNameSafe, ")", "")
+		modelNameSafe = strings.ReplaceAll(modelNameSafe, "=", "")
+
 		modelFile := fmt.Sprintf(
 			"%s_%s.model",
 			strings.TrimSuffix(csvName, ".csv"),
-			strings.ReplaceAll(trainer.Name, " ", "_"),
+			modelNameSafe,
 		)
 
-		// Persistência do modelo treinado.
-		model.Save(filepath.Join("models", modelFile))
+		modelPath := filepath.Join("models", modelFile)
+
+		// Persistência do modelo treinado
+		err = model.Save(modelPath)
+		if err != nil {
+			log.Println("Erro ao salvar modelo:", err)
+		}
 
 		results = append(results, ModelResult{
 			ModelName: trainer.Name,
@@ -305,6 +739,7 @@ func trainModel(w http.ResponseWriter, r *http.Request) {
 			Labels:    labels,
 			Matrix:    matrix,
 			Metrics:   metrics,
+			ModelFile: modelFile,
 		})
 	}
 
@@ -317,6 +752,32 @@ func trainModel(w http.ResponseWriter, r *http.Request) {
 	}
 
 	templates.ExecuteTemplate(w, "result.html", page)
+}
+
+/*
+downloadModel serve o arquivo do modelo para download.
+*/
+func downloadModel(w http.ResponseWriter, r *http.Request) {
+	modelFile := r.URL.Query().Get("file")
+	if modelFile == "" {
+		http.Error(w, "Arquivo não especificado", http.StatusBadRequest)
+		return
+	}
+
+	// Previne path traversal
+	modelFile = filepath.Base(modelFile)
+	modelPath := filepath.Join("models", modelFile)
+
+	// Verifica se o arquivo existe
+	if _, err := os.Stat(modelPath); os.IsNotExist(err) {
+		http.Error(w, "Arquivo não encontrado", http.StatusNotFound)
+		return
+	}
+
+	// Configura headers para download
+	w.Header().Set("Content-Disposition", "attachment; filename="+modelFile)
+	w.Header().Set("Content-Type", "application/octet-stream")
+	http.ServeFile(w, r, modelPath)
 }
 
 /*
@@ -429,20 +890,39 @@ func computeMetrics(confusion map[string]map[string]int, labels []string) ([]Cla
 	return metrics, accuracy
 }
 
-/*
-getCSVHeaders lê apenas a primeira linha do CSV,
-retornando os nomes das colunas.
-*/
+// Versão corrigida - detecta automaticamente o separador igual ao trainModel
 func getCSVHeaders(path string) ([]string, error) {
-
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, err
 	}
 	defer f.Close()
 
-	reader := csv.NewReader(f)
-	return reader.Read()
+	// Lê a primeira linha para detectar o separador
+	reader := bufio.NewReader(f)
+	firstLine, err := reader.ReadString('\n')
+	if err != nil {
+		return nil, err
+	}
+
+	// Detecta o separador baseado na primeira linha
+	var separator rune
+	if strings.Contains(firstLine, ";") {
+		separator = ';'
+	} else {
+		separator = ','
+	}
+
+	// Volta ao início do arquivo
+	f.Seek(0, 0)
+
+	// Cria um leitor CSV com o separador detectado
+	csvReader := csv.NewReader(f)
+	csvReader.Comma = separator
+	csvReader.LazyQuotes = true
+	csvReader.TrimLeadingSpace = true
+
+	return csvReader.Read()
 }
 
 /*
@@ -453,4 +933,27 @@ func safeDiv(a, b float64) float64 {
 		return 0
 	}
 	return a / b
+}
+
+/*
+parseKNNConfig parseia a string de configuração do KNN.
+Formato esperado: "knn_{distance}_k{value}"
+Exemplo: "knn_manhattan_k7"
+*/
+func parseKNNConfig(config string) (distance string, k int, err error) {
+	parts := strings.Split(config, "_")
+	if len(parts) != 3 {
+		return "", 0, fmt.Errorf("formato inválido: %s", config)
+	}
+
+	distance = parts[1]
+
+	// Extrai o valor de k (formato: "k7" -> 7)
+	kStr := strings.TrimPrefix(parts[2], "k")
+	k, err = strconv.Atoi(kStr)
+	if err != nil {
+		return "", 0, fmt.Errorf("valor de k inválido: %s", kStr)
+	}
+
+	return distance, k, nil
 }

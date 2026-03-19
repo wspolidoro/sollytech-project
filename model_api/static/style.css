@@ -78,6 +78,17 @@ h1 {
 }
 
 /* FORM */
+.form-group {
+  margin-bottom: 24px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #9ca3af;
+  font-weight: 500;
+}
+
 input, select {
   width: 100%;
   padding: 14px;
@@ -85,11 +96,36 @@ input, select {
   border: 1px solid #1e293b;
   border-radius: 10px;
   color: white;
-  margin-top: 14px;
+}
+
+.checkbox-group {
+  background: #020617;
+  border: 1px solid #1e293b;
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.checkbox-label {
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  color: #e5e7eb !important;
+  cursor: pointer;
+}
+
+.checkbox-label:last-child {
+  margin-bottom: 0;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+  accent-color: #9effa8;
 }
 
 button {
-  margin-top: 22px;
+  margin-top: 10px;
   width: 100%;
   padding: 14px;
   background: #9effa8;
@@ -98,10 +134,61 @@ button {
   border: none;
   border-radius: 12px;
   cursor: pointer;
+  font-size: 16px;
 }
 
 button:hover {
   filter: brightness(0.9);
+}
+
+/* MODEL HEADER */
+.model-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.model-header h2 {
+  margin: 0;
+}
+
+.download-button {
+  display: inline-block;
+  background: #9effa8;
+  color: #052e16;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: bold;
+  text-decoration: none;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+.download-button:hover {
+  filter: brightness(0.9);
+  transform: translateY(-2px);
+}
+
+/* ACCURACY */
+.accuracy-box {
+  background: #020617;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #1e293b;
+}
+
+.accuracy-box strong {
+  color: #9effa8;
+  margin-right: 10px;
+}
+
+.accuracy-box span {
+  font-size: 20px;
+  font-weight: bold;
 }
 
 /* TABLE */
@@ -121,7 +208,13 @@ th {
   color: #9effa8;
 }
 
-/* DOWNLOAD */
+.matrix-table td:first-child,
+.metrics-table td:first-child {
+  font-weight: bold;
+  color: #9effa8;
+}
+
+/* DOWNLOAD (legado - mantido para compatibilidade) */
 .download {
   display: inline-block;
   margin-top: 30px;
@@ -135,4 +228,178 @@ th {
 
 .download:hover {
   filter: brightness(0.9);
+}
+
+/* Adicione isto ao seu style.css existente */
+
+.info-box {
+  background: #0f172a;
+  border-left: 4px solid #9effa8;
+  padding: 16px;
+  margin: 20px 0;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.info-box ul {
+  margin: 10px 0 10px 20px;
+  color: #c7cbe0;
+}
+
+.info-box p {
+  color: #9ca3af;
+  margin: 5px 0;
+}
+
+.info-box strong {
+  color: #9effa8;
+}
+
+/* Adicione ao style.css */
+
+/* Tabela de configuração */
+.table-responsive {
+  overflow-x: auto;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  border: 1px solid #1e293b;
+}
+
+.config-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px;
+}
+
+.config-table th {
+  padding: 15px 10px;
+  text-align: center;
+  background: #020617;
+  font-weight: 600;
+}
+
+.config-table td {
+  padding: 12px 10px;
+  border-bottom: 1px solid #1e293b;
+}
+
+.config-table tbody tr:hover {
+  background: rgba(158, 255, 168, 0.05);
+}
+
+.column-name {
+  font-weight: 500;
+  color: #e5e7eb;
+  white-space: nowrap;
+}
+
+.option-header {
+  text-align: center;
+  font-size: 14px;
+}
+
+.feature-header {
+  color: #60a5fa;
+}
+
+.target-header {
+  color: #f87171;
+}
+
+.ignore-header {
+  color: #9ca3af;
+}
+
+/* Células de rádio */
+.radio-cell {
+  text-align: center;
+  vertical-align: middle;
+}
+
+.radio-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  padding: 5px;
+}
+
+.radio-label input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.radio-custom {
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid #1e293b;
+  background: #020617;
+  transition: all 0.2s ease;
+}
+
+.feature-label:hover .radio-custom {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2);
+}
+
+.target-label:hover .radio-custom {
+  border-color: #f87171;
+  box-shadow: 0 0 0 2px rgba(248, 113, 113, 0.2);
+}
+
+.ignore-label:hover .radio-custom {
+  border-color: #9ca3af;
+  box-shadow: 0 0 0 2px rgba(156, 163, 175, 0.2);
+}
+
+/* Estilo quando selecionado */
+.feature-radio:checked + .radio-custom {
+  background: #60a5fa;
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.3);
+}
+
+.target-radio:checked + .radio-custom {
+  background: #f87171;
+  border-color: #f87171;
+  box-shadow: 0 0 0 2px rgba(248, 113, 113, 0.3);
+}
+
+.ignore-radio:checked + .radio-custom {
+  background: #4b5563;
+  border-color: #4b5563;
+  box-shadow: 0 0 0 2px rgba(75, 85, 99, 0.3);
+}
+
+/* Badges para as instruções */
+.feature-badge {
+  background: rgba(96, 165, 250, 0.2);
+  color: #60a5fa;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  margin-right: 5px;
+}
+
+.target-badge {
+  background: rgba(248, 113, 113, 0.2);
+  color: #f87171;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  margin-right: 5px;
+}
+
+.ignore-badge {
+  background: rgba(156, 163, 175, 0.2);
+  color: #9ca3af;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  margin-right: 5px;
 }

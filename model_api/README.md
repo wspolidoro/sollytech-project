@@ -1,209 +1,120 @@
-# Sollychain ML Dashboard
+# ML Web Trainer with GoLearn
 
-## Overview
+Aplicação web em Go para **treinar modelos de Machine Learning a partir de arquivos CSV**, permitindo que o usuário escolha a **coluna target diretamente pelo frontend** e faça o **download do modelo treinado**.
 
-This project is a web-based machine learning dashboard developed in Go that allows users to upload a dataset in CSV format, select a target variable, and train classification models. The application provides evaluation metrics including accuracy, confusion matrix, and per-class performance metrics.
-
-The system is designed with a simple workflow:
-
-1. Upload a CSV dataset.
-2. Select the target column to be predicted.
-3. Train machine learning models.
-4. Visualize training results and evaluation metrics.
+O projeto utiliza a biblioteca **GoLearn** e o algoritmo **ID3 Decision Tree**.
 
 ---
 
-## Technical Requirements
+## 🚀 Funcionalidades
 
-Before running the project, ensure the following dependencies are installed.
-
-### 1. Go (Golang)
-
-The application is implemented in Go.
-
-Minimum recommended version:
-
-```
-Go 1.20 or higher
-```
-
-Installation instructions:
-
-* Download from: https://go.dev/dl/
-* After installation, verify:
-
-```bash
-go version
-```
+* Upload de arquivo CSV via navegador
+* Listagem automática das colunas do CSV
+* Escolha da coluna **target** no frontend
+* Treinamento do modelo ID3
+* Download do modelo treinado (`.model`)
+* Interface web simples e estilizada
 
 ---
 
-### 2. Environment Variables (Optional)
+## 🧠 Tecnologias utilizadas
 
-If your environment requires custom configuration (such as port selection), you may configure environment variables before execution. Otherwise, the default configuration will be used.
+* Go (Golang)
+* net/http (servidor web)
+* GoLearn (`github.com/sjwhitworth/golearn`)
+* HTML + CSS
 
 ---
 
-## Project Structure
-
-A typical project structure is organized as follows:
+## 📁 Estrutura do projeto
 
 ```
-project/
+ml-web/
 │
 ├── main.go
-├── models/
 ├── templates/
-│   ├── index.html
-│   ├── target.html
-│   └── result.html
+│   └── index.html
 ├── static/
 │   └── style.css
 ├── uploads/
+├── models/
 └── go.mod
 ```
 
-Description:
-
-* `main.go`: Application entry point.
-* `models/`: Storage for downloaded models files.
-* `templates/`: HTML templates rendered by the server.
-* `static/`: CSS and static assets.
-* `uploads/`: Temporary storage for uploaded CSV files.
-
 ---
 
-## Installation and Execution
+## ▶️ Como executar
 
-### Step 1 — Clone or Download the Repository
+### 1. Clonar o repositório
 
 ```bash
-git clone <repository-url>
-cd <project-folder>
+git clone https://github.com/seu-usuario/ml-web.git
+cd ml-web
 ```
 
-If you received the project as a compressed file, extract it and navigate to the directory.
-
----
-
-### Step 2 — Install Dependencies
-
-Initialize Go modules and download dependencies:
+### 2. Inicializar o módulo Go
 
 ```bash
-go mod tidy
+go mod init ml-web
+go get github.com/sjwhitworth/golearn
 ```
 
----
-
-### Step 3 — Run the Application
-
-Start the server:
+### 3. Executar o servidor
 
 ```bash
 go run main.go
 ```
 
----
-
-### Step 4 — Access the Web Interface
-
-Open a browser and navigate to:
+### 4. Acessar no navegador
 
 ```
 http://localhost:8080
 ```
 
-If a different port is configured, use the corresponding address.
-
 ---
 
-## Usage Guide
+## 📊 Formato esperado do CSV
 
-### 1. Upload Dataset
+* Deve conter **cabeçalho**
+* As colunas devem ser categóricas ou discretizadas
+* A coluna escolhida como *target* será usada como variável de saída
 
-* On the main page, select a CSV file containing your dataset.
-* The file must include a header row with column names.
-* After upload, the system will parse the dataset and extract available columns.
+Exemplo:
 
-### 2. Select Target Column
-
-* The application will display all detected columns.
-* Choose the column representing the prediction target (class label).
-* Submit the form to initiate model training.
-
-### 3. Model Training
-
-The system automatically:
-
-* Splits the dataset into training and testing subsets.
-* Trains one or more classification models.
-* Computes evaluation metrics.
-
-### 4. Results Visualization
-
-The results page displays:
-
-* Model name
-* Accuracy score
-* Confusion matrix
-* Per-class metrics:
-
-  * Precision
-  * Recall
-  * F1-score
-  * True Positives (TP)
-  * False Positives (FP)
-  * False Negatives (FN)
-
----
-
-## Supported Dataset Format
-
-Requirements for CSV files:
-
-* Comma-separated values.
-* Header row required.
-* Numeric or categorical features supported.
-* Target column must contain discrete class labels.
-
-Example:
-
-```
-age,income,gender,bought
-25,50000,M,Yes
-30,60000,F,No
-...
+```csv
+idade,sexo,renda,classe
+25,M,3000,A
+40,F,5000,B
 ```
 
 ---
 
-## Troubleshooting
+## 🔐 Observações
 
-### Port Already in Use
-
-If port 8080 is occupied, modify the server port in the source code or terminate the conflicting process.
-
-### CSV Parsing Errors
-
-Ensure:
-
-* The file uses UTF-8 encoding.
-* There are no malformed rows.
-* All rows contain the same number of columns.
-
-### Dependency Issues
-
-Run:
-
-```bash
-go clean -modcache
-go mod tidy
-```
+* O modelo é salvo localmente na pasta `models/`
+* Cada upload gera um novo modelo
+* O nome do arquivo do modelo é baseado no CSV enviado
 
 ---
 
-## Author
+## ✨ Possíveis melhorias futuras
+
+* Exibir métricas (accuracy, matriz de confusão)
+* Suporte a múltiplos algoritmos
+* Download de metadata do treinamento
+* API REST
+* Autenticação de usuários
+* Dockerização
+
+---
+
+## 👤 Autor
 
 **Carlos Augusto R. de Oliveira**
 📧 Email: [caruviaro@outlook.com](mailto:caruviaro@outlook.com)
+
+---
+
+## 📄 Licença
+
+Este projeto é distribuído sob a licença MIT.

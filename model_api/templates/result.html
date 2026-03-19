@@ -23,7 +23,7 @@
 
     </aside>
 
-    <!-- CONTEÚDO (igual target.html) -->
+    <!-- CONTEÚDO -->
     <main class="content">
 
         <h1>Resultados do Treinamento</h1>
@@ -44,7 +44,10 @@
 
         <div class="card">
 
-            <h2>{{.ModelName}}</h2>
+            <div class="model-header">
+                <h2>{{.ModelName}}</h2>
+                <a href="/download?file={{.ModelFile}}" class="download-button">📥 Baixar Modelo</a>
+            </div>
 
             <div class="accuracy-box">
                 <strong>Acurácia:</strong>

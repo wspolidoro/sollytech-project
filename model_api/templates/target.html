@@ -1,8 +1,9 @@
+<!-- Versão compatível com o backend atual -->
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<title>Escolher Target</title>
+<title>Configurar Variáveis</title>
 <link rel="stylesheet" href="/static/style.css">
 </head>
 
@@ -13,31 +14,179 @@
     <div class="logo">🧬 Sollychain</div>
     <nav class="menu">
       <a href="/">Upload CSV</a>
-      <a class="active">Target</a>
+      <a class="active">Configurar</a>
     </nav>
   </aside>
 
   <main class="content">
-    <h1>Escolher coluna target</h1>
+    <h1>Configurar Variáveis do Dataset</h1>
     <p class="subtitle">
-      Defina qual atributo será usado como classe do modelo
+      Para cada coluna, escolha se é Feature, Target ou se não será usada
     </p>
 
     <div class="card">
-      <form action="/train" method="post">
+      <form action="/train" method="post" id="configForm">
         <input type="hidden" name="csv" value="{{.CSVName}}">
 
-        <select name="target" required>
-          {{range .Columns}}
-            <option value="{{.}}">{{.}}</option>
-          {{end}}
-        </select>
+        <div class="table-responsive">
+          <table class="config-table">
+            <thead>
+              <tr>
+                <th>Coluna</th>
+                <th class="option-header feature-header">📊 Feature</th>
+                <th class="option-header target-header">🎯 Target</th>
+                <th class="option-header ignore-header">❌ Ignorar</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{range $index, $col := .Columns}}
+              <tr class="config-row" data-column="{{$col}}">
+                <td class="column-name">{{$col}}</td>
+                <td class="radio-cell">
+                  <label class="radio-label feature-label">
+                    <input type="radio" name="type_{{$col}}" value="feature" class="feature-radio" checked data-col="{{$col}}">
+                    <span class="radio-custom"></span>
+                  </label>
+                </td>
+                <td class="radio-cell">
+                  <label class="radio-label target-label">
+                    <input type="radio" name="type_{{$col}}" value="target" class="target-radio" data-col="{{$col}}">
+                    <span class="radio-custom"></span>
+                  </label>
+                </td>
+                <td class="radio-cell">
+                  <label class="radio-label ignore-label">
+                    <input type="radio" name="type_{{$col}}" value="ignore" class="ignore-radio" data-col="{{$col}}">
+                    <span class="radio-custom"></span>
+                  </label>
+                </td>
+              </tr>
+              
+              <!-- Campos ocultos para compatibilidade com o backend -->
+              <input type="hidden" name="features" value="{{$col}}" class="feature-hidden" disabled>
+              <input type="hidden" name="target_columns" value="{{$col}}" class="target-hidden" disabled>
+              {{end}}
+            </tbody>
+          </table>
+        </div>
 
-        <button>Treinar Modelo</button>
+        <div class="form-group">
+          <label for="predict_target">🔮 Qual target deseja prever?</label>
+          <p class="field-hint">Escolha UMA das colunas marcadas como Target</p>
+          <select name="predict_target" id="predict_target" required>
+            <option value="">Selecione um target para predição</option>
+            {{range .Columns}}
+              <option value="{{.}}" class="target-option">{{.}}</option>
+            {{end}}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>🤖 Modelos para treinar:</label>
+          <div class="checkbox-group">
+            {{range .Models}}
+            <label class="checkbox-label">
+              <input type="checkbox" name="models" value="{{.ID}}" {{if .Checked}}checked{{end}}>
+              {{.Name}}
+            </label>
+            {{end}}
+          </div>
+        </div>
+
+        <div class="info-box">
+          <p><strong>📋 Instruções:</strong></p>
+          <ul>
+            <li><span class="feature-badge">📊 Feature</span> - Variável de entrada para o modelo</li>
+            <li><span class="target-badge">🎯 Target</span> - Variável alvo (pode ter múltiplas)</li>
+            <li><span class="ignore-badge">❌ Ignorar</span> - Coluna não será usada</li>
+            <li>Uma coluna <strong>não pode ser Feature e Target ao mesmo tempo</strong></li>
+            <li>No final, escolha qual Target será previsto</li>
+          </ul>
+          <br>
+          <p><strong>Random Tree:</strong> Por limitações do modelo e principalmente do dataset, o modelo Random Tree pode demorar ou não convergir às vezes.</p>
+        </div>
+
+        <button type="submit">Treinar Modelo(s)</button>
       </form>
     </div>
   </main>
 
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const predictSelect = document.getElementById('predict_target');
+    const targetOptions = predictSelect.querySelectorAll('.target-option');
+    
+    // Função para atualizar os campos ocultos e o select
+    function updateForm() {
+        const featureRadios = document.querySelectorAll('.feature-radio:checked');
+        const targetRadios = document.querySelectorAll('.target-radio:checked');
+        
+        // Habilita/desabilita os campos ocultos baseado nas seleções
+        document.querySelectorAll('.feature-hidden').forEach(input => {
+            const colName = input.value;
+            const isFeature = Array.from(featureRadios).some(radio => radio.dataset.col === colName);
+            input.disabled = !isFeature;
+        });
+        
+        document.querySelectorAll('.target-hidden').forEach(input => {
+            const colName = input.value;
+            const isTarget = Array.from(targetRadios).some(radio => radio.dataset.col === colName);
+            input.disabled = !isTarget;
+        });
+        
+        // Atualiza as opções do select de predição
+        const selectedTargets = Array.from(targetRadios).map(radio => radio.dataset.col);
+        
+        targetOptions.forEach(option => {
+            if (selectedTargets.includes(option.value)) {
+                option.style.display = '';
+                option.disabled = false;
+            } else {
+                option.style.display = 'none';
+                option.disabled = true;
+            }
+        });
+        
+        if (predictSelect.value && !selectedTargets.includes(predictSelect.value)) {
+            predictSelect.value = '';
+        }
+    }
+    
+    // Adiciona evento de change para todos os rádios
+    document.querySelectorAll('input[type="radio"]').forEach(radio => {
+        radio.addEventListener('change', updateForm);
+    });
+    
+    // Executa uma vez no início
+    updateForm();
+
+    // Validação antes de enviar
+    document.getElementById('configForm').addEventListener('submit', function(e) {
+        const features = document.querySelectorAll('.feature-radio:checked');
+        const targets = document.querySelectorAll('.target-radio:checked');
+        
+        if (features.length === 0) {
+            e.preventDefault();
+            alert('Selecione pelo menos uma coluna como Feature!');
+            return;
+        }
+        
+        if (targets.length === 0) {
+            e.preventDefault();
+            alert('Selecione pelo menos uma coluna como Target!');
+            return;
+        }
+        
+        if (!predictSelect.value) {
+            e.preventDefault();
+            alert('Selecione qual Target deseja prever!');
+            return;
+        }
+    });
+});
+</script>
+
 </body>
 </html>
